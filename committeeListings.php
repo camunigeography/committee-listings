@@ -16,6 +16,7 @@ class committeeListings extends frontControllerApplication
 			'table' => 'meetings',
 			'databaseStrictWhere' => true,
 			'administrators' => true,
+			'useEditing' => true,
 		);
 		
 		# Return the defaults
@@ -34,7 +35,13 @@ class committeeListings extends frontControllerApplication
 				'tab' => 'Committees',
 				'icon' => 'house',
 			),
-			
+			'editing' => array (
+				'description' => false,
+				'url' => 'data/',
+				'tab' => 'Data editing',
+				'icon' => 'pencil',
+				'administrator' => true,
+			),
 		);
 		
 		# Return the actions
@@ -72,6 +79,24 @@ class committeeListings extends frontControllerApplication
 	}
 	
 	
+	
+	# Admin editing section, substantially delegated to the sinenomine editing component
+	public function editing ($attributes = array (), $deny = false)
+	{
+		# Define sinenomine attributes
+		$attributes = array (
+			// array (database, table, field, modifiers array() ),
+		);
+		
+		# Define tables to deny editing for
+		$deny[$this->settings['database']] = array (
+			'administrators',
+			'settings',
+		);
+		
+		# Hand off to the default editor, which will echo the HTML
+		parent::editing ($attributes, $deny);
+	}
 }
 
 ?>
