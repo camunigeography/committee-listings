@@ -65,6 +65,7 @@ class committeeListings extends frontControllerApplication
 			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
+			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
 			  UNIQUE(`moniker`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committees';
 			
@@ -109,7 +110,7 @@ class committeeListings extends frontControllerApplication
 		# Get the data
 		$query = '
 			SELECT
-				name, moniker, type
+				name, moniker, type, spaceAfter
 			FROM committees
 			LEFT JOIN types ON committees.typeId = types.id
 			ORDER BY types.ordering, committees.ordering, committees.name
@@ -146,7 +147,7 @@ class committeeListings extends frontControllerApplication
 			foreach ($committees as $moniker => $committee) {
 				$isExternal = (preg_match ('|^https?://.+|', $committee['moniker']));
 				$url = ($isExternal ? $moniker : $this->baseUrl . '/' . $moniker . '/');
-				$list[] = "<a href=\"{$url}\"" . ($isExternal ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>';
+				$list[] = "<a href=\"{$url}\"" . ($isExternal ? ' target="_blank"' : '') . ($committee['spaceAfter'] ? ' class="spaced"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>';
 			}
 			$listingHtml .= application::htmlUl ($list);
 		}
@@ -167,6 +168,7 @@ class committeeListings extends frontControllerApplication
 	{
 		# Define sinenomine settings
 		$sinenomineExtraSettings = array (
+			'int1ToCheckbox' => true,
 			'simpleJoin' => true,
 		);
 		
