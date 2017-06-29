@@ -64,7 +64,8 @@ class committeeListings extends frontControllerApplication
 			  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name',
 			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
-			  `ordering` int(1) NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)'
+			  `ordering` int(1) NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
+			  UNIQUE(`moniker`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committees';
 			
 			CREATE TABLE `types` (
