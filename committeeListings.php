@@ -59,11 +59,52 @@ class committeeListings extends frontControllerApplication
 			  `active` enum('','Yes','No') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Yes' COMMENT 'Currently active?'
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='System administrators';
 			
+			CREATE TABLE `committees` (
+			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
+			  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name',
+			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
+			  `typeId` INT(11) NOT NULL COMMENT 'Type',
+			  `ordering` int(1) NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committees';
+			
+			CREATE TABLE `types` (
+			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
+			  `type` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Type',
+			  `ordering` int(1) NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committee types (for grouping)';
+			
 			CREATE TABLE `settings` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key (ignored)' PRIMARY KEY
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Settings';
 		";
 	}
+	
+	
+	# Additional initialisation
+	public function main ()
+	{
+		# Get the Committees
+		$this->committees = $this->getCommittees ();
+	}
+	
+	
+	# Function to get the Committees
+	private function getCommittees ()
+	{
+		# Get the data
+		$query = '
+			SELECT
+			committees.id, name, moniker, type
+			FROM committees
+			LEFT JOIN types ON committees.typeId = types.id
+			ORDER BY types.ordering, committees.ordering, committees.name
+		;';
+		$data = $this->databaseConnection->getData ($query);
+		
+		# Return the data
+		return $data;
+	}
+	
 	
 	
 	# Welcome screen
