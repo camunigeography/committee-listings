@@ -64,7 +64,7 @@ class committeeListings extends frontControllerApplication
 			  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name',
 			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
-			  `ordering` int(1) NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
+			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  UNIQUE(`moniker`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committees';
 			
