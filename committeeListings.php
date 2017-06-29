@@ -11,6 +11,7 @@ class committeeListings extends frontControllerApplication
 	{
 		# Specify available arguments as defaults or as NULL (to represent a required argument)
 		$defaults = array (
+			'applicationName' => 'Committees',
 			'div' => strtolower (__CLASS__),
 			'database' => 'committeelistings',
 			'table' => 'meetings',
