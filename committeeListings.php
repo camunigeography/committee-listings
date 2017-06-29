@@ -97,12 +97,15 @@ class committeeListings extends frontControllerApplication
 		# Get the data
 		$query = '
 			SELECT
-			committees.id, name, moniker, type
+				name, moniker, type
 			FROM committees
 			LEFT JOIN types ON committees.typeId = types.id
 			ORDER BY types.ordering, committees.ordering, committees.name
 		;';
 		$data = $this->databaseConnection->getData ($query);
+		
+		# Reindex by moniker
+		$data = application::reindex ($data, 'moniker');
 		
 		# Return the data
 		return $data;
@@ -128,9 +131,9 @@ class committeeListings extends frontControllerApplication
 			
 			# Create the list for this type
 			$list = array ();
-			foreach ($committees as $committee) {
+			foreach ($committees as $moniker => $committee) {
 				$isExternal = (preg_match ('|^https?://.+|', $committee['moniker']));
-				$url = ($isExternal ? $committee['moniker'] : $this->baseUrl . '/' . $committee['moniker'] . '/');
+				$url = ($isExternal ? $moniker : $this->baseUrl . '/' . $moniker . '/');
 				$list[] = "<a href=\"{$url}\"" . ($isExternal ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>';
 			}
 			$listingHtml .= application::htmlUl ($list);
