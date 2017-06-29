@@ -82,9 +82,14 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Admin editing section, substantially delegated to the sinenomine editing component
-	public function editing ($attributes = array (), $deny = false)
+	public function editing ($attributes = array (), $deny = false, $sinenomineExtraSettings = array ())
 	{
-		# Define sinenomine attributes
+		# Define sinenomine settings
+		$sinenomineExtraSettings = array (
+			'simpleJoin' => true,
+		);
+		
+		# Define table attributes
 		$attributes = array (
 			// array (database, table, field, modifiers array() ),
 		);
@@ -96,7 +101,7 @@ class committeeListings extends frontControllerApplication
 		);
 		
 		# Hand off to the default editor, which will echo the HTML
-		parent::editing ($attributes, $deny);
+		parent::editing ($attributes, $deny, $sinenomineExtraSettings);
 	}
 }
 
