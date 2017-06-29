@@ -1,0 +1,14 @@
+<?php
+
+# Settings
+$settings = array (
+	'hostname' => 'localhost',
+	'username' => 'the_username',
+	'password' => 'the_password',
+);
+
+# Load and run the committee listings class
+require_once ('committee-listings/committeeListings.php');
+new committeeListings ($settings);
+
+?>

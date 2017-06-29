@@ -1,0 +1,18 @@
+# Apache httpd.conf extract providing URL routing and other directives
+
+#   Example usage in httpd.conf:
+#   
+#   # Committee listings system
+#   Include /path/to/committee-listings/.httpd.conf.extract.txt
+#   Use MacroCommitteeListings "/committees" "/path/to/committee-listings/:/path/to/php/libraries/"
+
+
+<Macro MacroCommitteeListings $applicationBaseUrl $includePath>
+	
+	<Location $applicationBaseUrl>
+		php_value include_path "$includePath"
+	</Location>
+	
+	Use MacroFrontControllerApplication "$applicationBaseUrl/" "Committee listings"
+	
+</Macro>
