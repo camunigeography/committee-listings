@@ -31,7 +31,7 @@ class committeeListings extends frontControllerApplication
 		# Specify additional actions
 		$actions = array (
 			'home' => array (
-				'description' => 'Committees',
+				'description' => false,
 				'url' => '',
 				'tab' => 'Committees',
 				'icon' => 'house',
@@ -113,8 +113,27 @@ class committeeListings extends frontControllerApplication
 		# Start the HTML
 		$html = '';
 		
-		$html = 'Welcome!';
+		# Regroup by type
+		$committeesByType = application::regroup ($this->committees, 'type');
 		
+		# Create the listing
+		$multipleTypes = (count ($committeesByType) > 1);
+		foreach ($committeesByType as $type => $committees) {
+			
+			# Show heading if more than one type
+			if ($multipleTypes) {
+				$html .= "\n<h2>" . htmlspecialchars ($type) . '</h2>';
+			}
+			
+			# Create the list for this type
+			$list = array ();
+			foreach ($committees as $committee) {
+				$isExternal = (preg_match ('|^https?://.+|', $committee['moniker']));
+				$url = ($isExternal ? $committee['moniker'] : $this->baseUrl . '/' . $committee['moniker'] . '/');
+				$list[] = "<a href=\"{$url}\"" . ($isExternal ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>';
+			}
+			$html .= application::htmlUl ($list);
+		}
 		
 		# Show the HTML
 		echo $html;
