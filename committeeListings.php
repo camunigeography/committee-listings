@@ -55,7 +55,7 @@ class committeeListings extends frontControllerApplication
 	{
 		return "
 			CREATE TABLE `administrators` (
-			  `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Username' PRIMARY KEY,
+			  `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL PRIMARY KEY COMMENT 'Username',
 			  `active` enum('','Yes','No') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Yes' COMMENT 'Currently active?'
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='System administrators';
 			
@@ -74,7 +74,9 @@ class committeeListings extends frontControllerApplication
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committee types (for grouping)';
 			
 			CREATE TABLE `settings` (
-			  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key (ignored)' PRIMARY KEY
+			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key (ignored)',
+			  `homepageIntroductionHtml` text COLLATE utf8_unicode_ci COMMENT 'Homepage introductory content',
+			  `homepageFooterHtml` text COLLATE utf8_unicode_ci COMMENT 'Homepage footer content'
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Settings';
 		";
 	}
@@ -110,19 +112,17 @@ class committeeListings extends frontControllerApplication
 	# Welcome screen
 	public function home ()
 	{
-		# Start the HTML
-		$html = '';
-		
 		# Regroup by type
 		$committeesByType = application::regroup ($this->committees, 'type');
 		
 		# Create the listing
+		$listingHtml = '';
 		$multipleTypes = (count ($committeesByType) > 1);
 		foreach ($committeesByType as $type => $committees) {
 			
 			# Show heading if more than one type
 			if ($multipleTypes) {
-				$html .= "\n<h2>" . htmlspecialchars ($type) . '</h2>';
+				$listingHtml .= "\n<h2>" . htmlspecialchars ($type) . '</h2>';
 			}
 			
 			# Create the list for this type
@@ -132,8 +132,13 @@ class committeeListings extends frontControllerApplication
 				$url = ($isExternal ? $committee['moniker'] : $this->baseUrl . '/' . $committee['moniker'] . '/');
 				$list[] = "<a href=\"{$url}\"" . ($isExternal ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>';
 			}
-			$html .= application::htmlUl ($list);
+			$listingHtml .= application::htmlUl ($list);
 		}
+		
+		# Compile the HTML
+		$html  = $this->settings['homepageIntroductionHtml'];
+		$html .= $listingHtml;
+		$html .= $this->settings['homepageFooterHtml'];
 		
 		# Show the HTML
 		echo $html;
@@ -162,6 +167,22 @@ class committeeListings extends frontControllerApplication
 		
 		# Hand off to the default editor, which will echo the HTML
 		parent::editing ($attributes, $deny, $sinenomineExtraSettings);
+	}
+	
+	
+	# Settings
+	public function settings ($dataBindingSettingsOverrides = array ())
+	{
+		# Define overrides
+		$dataBindingSettingsOverrides = array (
+			'attributes' => array (
+				'homepageIntroductionHtml'	=> array ('editorToolbarSet' => 'BasicLonger', 'width' => 600, 'height' => 150, ),
+				'homepageFooterHtml'		=> array ('editorToolbarSet' => 'BasicLonger', 'width' => 600, 'height' => 150, ),
+			),
+		);
+		
+		# Run the main settings system with the overriden attributes
+		return parent::settings ($dataBindingSettingsOverrides);
 	}
 }
 
