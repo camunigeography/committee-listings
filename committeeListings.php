@@ -83,11 +83,23 @@ class committeeListings extends frontControllerApplication
 	}
 	
 	
+	# Additional initialisation, pre-actions
+	public function mainPreActions ()
+	{
+		# Hide tabs to ordinary users
+		if (!$this->userIsAdministrator) {
+			$this->settings['disableTabs'] = true;
+		}
+		
+	}
+	
+	
 	# Additional initialisation
 	public function main ()
 	{
 		# Get the Committees
 		$this->committees = $this->getCommittees ();
+		
 	}
 	
 	
