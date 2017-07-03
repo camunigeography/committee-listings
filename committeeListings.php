@@ -271,6 +271,7 @@ class committeeListings extends frontControllerApplication
 		$sinenomineExtraSettings = array (
 			'int1ToCheckbox' => true,
 			'simpleJoin' => true,
+			'datePicker' => true,
 			'richtextEditorToolbarSet' => 'BasicLonger',
 			'richtextWidth' => 600,
 			'richtextHeight' => 200,
