@@ -65,16 +65,14 @@ class committeeListings extends frontControllerApplication
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='System administrators';
 			
 			CREATE TABLE `committees` (
-			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
+			  `id` varchar(255) NOT NULL PRIMARY KEY COMMENT 'ID (including URL moniker)',
 			  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name',
-			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
 			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
 			  `membersHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Members',
-			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Meetings (clarification text)',
-			  UNIQUE(`moniker`)
+			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Meetings (clarification text)'
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committees';
 			
 			CREATE TABLE `types` (
@@ -118,15 +116,12 @@ class committeeListings extends frontControllerApplication
 		# Get the data
 		$query = '
 			SELECT
-				name, moniker, type, spaceAfter, introductionHtml, membersHtml, meetingsHtml
+				committees.id, name, type, spaceAfter, introductionHtml, membersHtml, meetingsHtml
 			FROM committees
 			LEFT JOIN types ON committees.typeId = types.id
 			ORDER BY types.ordering, committees.ordering, committees.name
 		;';
-		$data = $this->databaseConnection->getData ($query);
-		
-		# Reindex by moniker
-		$data = application::reindex ($data, 'moniker');
+		$data = $this->databaseConnection->getData ($query, "{$this->settings['database']}.committees");
 		
 		# Return the data
 		return $data;
