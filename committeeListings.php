@@ -180,6 +180,9 @@ class committeeListings extends frontControllerApplication
 		
 		# Construct the HTML
 		$html = '';
+		if ($this->userIsAdministrator) {
+			$html .= "<p class=\"actions right\"><a href=\"{$this->baseUrl}/data/committees/{$committeeId}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a></p>";
+		}
 		$html .= "\n<h2>" . htmlspecialchars ($committee['name']) . '</h2>';
 		$html .= $committee['introductionHtml'];
 		$html .= "\n<h2>Members of the Committee</h2>";
