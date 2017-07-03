@@ -75,6 +75,14 @@ class committeeListings extends frontControllerApplication
 			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Meetings (clarification text)'
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committees';
 			
+			CREATE TABLE `meetings` (
+			  `id` int(11) NOT NULL COMMENT 'Automatic key',
+			  `committeeId` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Committee',
+			  `date` date NOT NULL COMMENT 'Date',
+			  `time` time NOT NULL COMMENT 'Time',
+			  `location` VARCHAR(255) NOT NULL COMMENT 'Location'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Meetings';
+			
 			CREATE TABLE `types` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
 			  `type` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Type',
@@ -189,6 +197,9 @@ class committeeListings extends frontControllerApplication
 		$html .= $committee['membersHtml'];
 		$html .= "\n<h2>Meetings</h2>";
 		$html .= $committee['meetingsHtml'];
+		if ($this->userIsAdministrator) {
+			$html .= "<p class=\"actions right\"><a href=\"{$this->baseUrl}/data/meetings/\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a></p>";
+		}
 		$html .= $this->meetingsTable ($meetings);
 		
 		# Show the HTML
@@ -199,32 +210,23 @@ class committeeListings extends frontControllerApplication
 	# Function to obtain meetings data
 	private function getMeetings ($committeeId)
 	{
-		#!# For now, return a faked-up datastructure
-		return array (
-			array (
-				'date'		=> '2017-09-13',
-				'time'		=> '11:00:00',
-				'location'	=> 'Seminar Room',
-				'agenda'	=> 'Agenda link',
-				'minutes'	=> 'Minutes link',
-			),
-			array (
-				'date'		=> '2017-08-10',
-				'time'		=> '12:00:00',
-				'location'	=> 'Seminar Room',
-				'agenda'	=> 'Agenda link',
-				'minutes'	=> 'Minutes link',
-			),
-		);
+		# Get the data
+		$meetings = $this->databaseConnection->select ($this->settings['database'], 'meetings', array (), array (), true, 'date DESC, time DESC');
+		
+		# Attach document metadata
+		foreach ($meetings as $id => $meeting) {
+			$meetings[$id]['agenda'] = array ();
+			$meetings[$id]['minutes'] = array ();
+		}
+		
+		# Return the data
+		return $meetings;
 	}
 	
 	
 	# Function to convert a meetings list to a table
 	private function meetingsTable ($meetings)
 	{
-		# Start the HTML
-		$html = '1';
-		
 		# End if none
 		if (!$meetings) {
 			$html = "\n<p><em>No meetings have been found for this Committee.</em></p>";
