@@ -18,4 +18,8 @@
 	# Editing
 	Use MacroSinenomineEmbeddedWholeDb "$applicationBaseUrl" "/data" "editing"
 	
+	# Application directives
+	RewriteRule ^$applicationBaseUrl/([a-z]+)/$ $applicationBaseUrl/index.html?action=show&item=$1 [L,QSA]
+	RedirectMatch permanent ^$applicationBaseUrl/([a-z]+)$ $applicationBaseUrl/$1/
+	
 </Macro>

@@ -36,6 +36,11 @@ class committeeListings extends frontControllerApplication
 				'tab' => 'Committees',
 				'icon' => 'house',
 			),
+			'show' => array (
+				'description' => false,
+				'url' => '%1/',
+				'usetab' => 'home',
+			),
 			'editing' => array (
 				'description' => false,
 				'url' => 'data/',
@@ -66,6 +71,9 @@ class committeeListings extends frontControllerApplication
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
+			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
+			  `membersHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Members',
+			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Meetings (clarification text)',
 			  UNIQUE(`moniker`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committees';
 			
@@ -110,7 +118,7 @@ class committeeListings extends frontControllerApplication
 		# Get the data
 		$query = '
 			SELECT
-				name, moniker, type, spaceAfter
+				name, moniker, type, spaceAfter, introductionHtml, membersHtml, meetingsHtml
 			FROM committees
 			LEFT JOIN types ON committees.typeId = types.id
 			ORDER BY types.ordering, committees.ordering, committees.name
@@ -162,6 +170,94 @@ class committeeListings extends frontControllerApplication
 	}
 	
 	
+	# Committee page
+	public function show ($committeeId)
+	{
+		# Ensure the committee exists
+		if (!$committeeId || !isSet ($this->committees[$committeeId])) {
+			echo $this->page404 ();
+			return false;
+		}
+		$committee = $this->committees[$committeeId];
+		
+		# Obtain the meetings for this committee
+		$meetings = $this->getMeetings ($committeeId);
+		
+		# Construct the HTML
+		$html = '';
+		$html .= "\n<h2>" . htmlspecialchars ($committee['name']) . '</h2>';
+		$html .= $committee['introductionHtml'];
+		$html .= "\n<h2>Members of the Committee</h2>";
+		$html .= $committee['membersHtml'];
+		$html .= "\n<h2>Meetings</h2>";
+		$html .= $committee['meetingsHtml'];
+		$html .= $this->meetingsTable ($meetings);
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to obtain meetings data
+	private function getMeetings ($committeeId)
+	{
+		#!# For now, return a faked-up datastructure
+		return array (
+			array (
+				'date'		=> '2017-09-13',
+				'time'		=> '11:00:00',
+				'location'	=> 'Seminar Room',
+				'agenda'	=> 'Agenda link',
+				'minutes'	=> 'Minutes link',
+			),
+			array (
+				'date'		=> '2017-08-10',
+				'time'		=> '12:00:00',
+				'location'	=> 'Seminar Room',
+				'agenda'	=> 'Agenda link',
+				'minutes'	=> 'Minutes link',
+			),
+		);
+	}
+	
+	
+	# Function to convert a meetings list to a table
+	private function meetingsTable ($meetings)
+	{
+		# Start the HTML
+		$html = '1';
+		
+		# End if none
+		if (!$meetings) {
+			$html = "\n<p><em>No meetings have been found for this Committee.</em></p>";
+			return $html;
+		}
+		
+		# Compile the table data
+		$table = array ();
+		foreach ($meetings as $meeting) {
+			$table[] = array (
+				'date' => nl2br (date ("l jS F Y\nga", strtotime ($meeting['date'] . ' ' . $meeting['time']))) . ', ' . htmlspecialchars ($meeting['location']),
+				'agenda' => $meeting['agenda'],
+				'minutes' => $meeting['minutes'],
+			);
+		}
+		
+		# Define labels
+		$headings = array (
+			'date' => 'Date',
+			'agenda' => 'Agendas and<br />other papers',
+			'minutes' => 'Minutes (more recent meetings<br />may introduce corrections)',
+		);
+		
+		# Render the table
+		$html = application::htmlTable ($table, $headings, 'graybox', $keyAsFirstColumn = false, false, $allowHtml = true);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
 	
 	# Admin editing section, substantially delegated to the sinenomine editing component
 	public function editing ($attributes = array (), $deny = false, $sinenomineExtraSettings = array ())
@@ -170,6 +266,9 @@ class committeeListings extends frontControllerApplication
 		$sinenomineExtraSettings = array (
 			'int1ToCheckbox' => true,
 			'simpleJoin' => true,
+			'richtextEditorToolbarSet' => 'BasicLonger',
+			'richtextWidth' => 600,
+			'richtextHeight' => 200,
 		);
 		
 		# Define table attributes
