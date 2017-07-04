@@ -136,6 +136,12 @@ class committeeListings extends frontControllerApplication
 		# Reindex by moniker
 		$data = application::reindex ($data, 'moniker');
 		
+		# Add link data to the model
+		foreach ($data as $moniker => $committee) {
+			$data[$moniker]['isExternal'] = (preg_match ('|^https?://.+|', $moniker));
+			$data[$moniker]['url'] = ($data[$moniker]['isExternal'] ? $moniker : $this->baseUrl . '/' . $moniker . '/');
+		}
+		
 		# Return the data
 		return $data;
 	}
@@ -161,9 +167,7 @@ class committeeListings extends frontControllerApplication
 			# Create the list for this type
 			$list = array ();
 			foreach ($committees as $moniker => $committee) {
-				$isExternal = (preg_match ('|^https?://.+|', $committee['moniker']));
-				$url = ($isExternal ? $moniker : $this->baseUrl . '/' . $moniker . '/');
-				$list[] = "<a href=\"{$url}\"" . ($isExternal ? ' target="_blank"' : '') . ($committee['spaceAfter'] ? ' class="spaced"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>';
+				$list[] = "<a href=\"{$committee['url']}\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . ($committee['spaceAfter'] ? ' class="spaced"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>';
 			}
 			$listingHtml .= application::htmlUl ($list);
 		}
