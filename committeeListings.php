@@ -36,6 +36,11 @@ class committeeListings extends frontControllerApplication
 				'tab' => 'Committees',
 				'icon' => 'house',
 			),
+			'membership' => array (
+				'description' => 'Committee membership',
+				'url' => 'membership/',
+				'tab' => 'Members',
+			),
 			'show' => array (
 				'description' => false,
 				'url' => '%1/',
@@ -94,7 +99,8 @@ class committeeListings extends frontControllerApplication
 			CREATE TABLE `settings` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key (ignored)',
 			  `homepageIntroductionHtml` text COLLATE utf8_unicode_ci COMMENT 'Homepage introductory content',
-			  `homepageFooterHtml` text COLLATE utf8_unicode_ci COMMENT 'Homepage footer content'
+			  `homepageFooterHtml` text COLLATE utf8_unicode_ci COMMENT 'Homepage footer content',
+			  `membershipIntroductionHtml` TEXT NULL COMMENT 'Membership page introduction'
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Settings';
 		";
 	}
@@ -176,6 +182,24 @@ class committeeListings extends frontControllerApplication
 		$html  = $this->settings['homepageIntroductionHtml'];
 		$html .= $listingHtml;
 		$html .= $this->settings['homepageFooterHtml'];
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Committee membership listing
+	public function membership ()
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Construct the HTML, looping through each Committee and list the members
+		$html .= $this->settings['membershipIntroductionHtml'];
+		foreach ($this->committees as $moniker => $committee) {
+			$html .= "\n<h2>" . "<a href=\"{$committee['url']}\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a></h2>';
+			$html .= $committee['membersHtml'];
+		}
 		
 		# Show the HTML
 		echo $html;
@@ -305,6 +329,7 @@ class committeeListings extends frontControllerApplication
 			'attributes' => array (
 				'homepageIntroductionHtml'	=> array ('editorToolbarSet' => 'BasicLonger', 'width' => 600, 'height' => 150, ),
 				'homepageFooterHtml'		=> array ('editorToolbarSet' => 'BasicLonger', 'width' => 600, 'height' => 150, ),
+				'membershipIntroductionHtml'	=> array ('editorToolbarSet' => 'BasicLonger', 'width' => 600, 'height' => 150, ),
 			),
 		);
 		
