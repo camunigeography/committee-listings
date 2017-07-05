@@ -231,7 +231,10 @@ class committeeListings extends frontControllerApplication
 		$html .= "\n<h2>Meetings</h2>";
 		$html .= $committee['meetingsHtml'];
 		if ($this->userIsAdministrator) {
-			$html .= "<p class=\"actions right\"><a href=\"{$this->baseUrl}/data/meetings/\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a></p>";
+			$html .= "<p class=\"actions right\">
+				<a href=\"{$this->baseUrl}/data/meetings/add.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Add</a>
+				<a href=\"{$this->baseUrl}/data/meetings/\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a>
+			</p>";
 		}
 		$html .= $this->meetingsTable ($meetings);
 		
