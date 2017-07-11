@@ -27,6 +27,7 @@ Dependencies
 * [application.php application support library](http://download.geog.cam.ac.uk/projects/application/)
 * [database.php database wrapper library](http://download.geog.cam.ac.uk/projects/database/)
 * [frontControllerApplication.php front controller application implementation library](http://download.geog.cam.ac.uk/projects/frontcontrollerapplication/)
+* [pureContent.php site framework](http://download.geog.cam.ac.uk/projects/purecontent/)
 * [ultimateForm.php form library](http://download.geog.cam.ac.uk/projects/ultimateform/)
 * [FamFamFam Silk Icons set](http://www.famfamfam.com/lab/icons/silk/)
 

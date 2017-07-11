@@ -114,15 +114,39 @@ class committeeListings extends frontControllerApplication
 			$this->settings['disableTabs'] = true;
 		}
 		
+		# Get the Committees
+		$this->committees = $this->getCommittees ();
+		
 	}
 	
 	
 	# Additional initialisation
 	public function main ()
 	{
-		# Get the Committees
-		$this->committees = $this->getCommittees ();
+	}
+	
+	
+	# Drop-down list for switching committee
+	public function guiSearchBox ()
+	{
+		# End if not enabled
+		$enableActions = array ('home', 'show');
+		if (!in_array ($this->action, $enableActions)) {return false;}
 		
+		# Create the droplist
+		$droplist = array ();
+		$droplist[$this->baseUrl . '/'] = 'List of committees';
+		$truncateTo = 30;
+		foreach ($this->committees as $committee) {
+			$url = $committee['url'];
+			$droplist[$url] = (mb_strlen ($committee['name']) > $truncateTo ? mb_substr ($committee['name'], 0, $truncateTo) . chr(0xe2).chr(0x80).chr(0xa6) : $committee['name']);
+		}
+		
+		# Compile the HTML
+		$html = pureContent::htmlJumplist ($droplist, $selected = $_SERVER['SCRIPT_NAME'], '', 'jumplist', 0, $class = 'jumplist ultimateform');
+		
+		# Return the HTML
+		return $html;
 	}
 	
 	
@@ -220,11 +244,11 @@ class committeeListings extends frontControllerApplication
 		$meetings = $this->getMeetings ($committee['id']);
 		
 		# Construct the HTML
-		$html = '';
-		if ($this->userIsAdministrator) {
-			$html .= "<p class=\"actions right\"><a href=\"{$this->baseUrl}/data/committees/{$committee['id']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a></p>";
-		}
+		$html  = '';
 		$html .= "\n<h2>" . htmlspecialchars ($committee['name']) . '</h2>';
+		if ($this->userIsAdministrator) {
+			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$this->baseUrl}/data/committees/{$committee['id']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a></p>";
+		}
 		$html .= $committee['introductionHtml'];
 		$html .= "\n<h2>Members of the Committee</h2>";
 		$html .= $committee['membersHtml'];
