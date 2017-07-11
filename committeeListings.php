@@ -232,7 +232,7 @@ class committeeListings extends frontControllerApplication
 		$html .= $committee['meetingsHtml'];
 		if ($this->userIsAdministrator) {
 			$html .= "<p class=\"actions right\">
-				<a href=\"{$this->baseUrl}/data/meetings/add.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Add</a>
+				<a href=\"{$this->baseUrl}/data/meetings/add.html?committee={$committee['id']}\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Add</a>
 				<a href=\"{$this->baseUrl}/data/meetings/\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a>
 			</p>";
 		}
@@ -310,7 +310,7 @@ class committeeListings extends frontControllerApplication
 		
 		# Define table attributes
 		$attributes = array (
-			// array (database, table, field, modifiers array() ),
+			array ($this->settings['database'], 'meetings', 'committeeId', array ('get' => 'committee')),
 		);
 		
 		# Define tables to deny editing for
