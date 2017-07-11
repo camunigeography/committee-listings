@@ -139,7 +139,7 @@ class committeeListings extends frontControllerApplication
 		$droplist[$this->baseUrl . '/'] = 'List of committees';
 		$truncateTo = 30;
 		foreach ($this->committees as $committee) {
-			$url = $committee['url'];
+			$url = $committee['path'] . '/';
 			$droplist[$url] = (mb_strlen ($committee['name']) > $truncateTo ? mb_substr ($committee['name'], 0, $truncateTo) . chr(0xe2).chr(0x80).chr(0xa6) : $committee['name']);
 		}
 		
@@ -170,7 +170,7 @@ class committeeListings extends frontControllerApplication
 		# Add link data to the model
 		foreach ($data as $moniker => $committee) {
 			$data[$moniker]['isExternal'] = (preg_match ('|^https?://.+|', $moniker));
-			$data[$moniker]['url'] = ($data[$moniker]['isExternal'] ? $moniker : $this->baseUrl . '/' . $moniker . '/');
+			$data[$moniker]['path'] = ($data[$moniker]['isExternal'] ? $moniker : $this->baseUrl . '/' . $moniker);
 		}
 		
 		# Return the data
@@ -198,7 +198,7 @@ class committeeListings extends frontControllerApplication
 			# Create the list for this type
 			$list = array ();
 			foreach ($committees as $moniker => $committee) {
-				$list[] = "<a href=\"{$committee['url']}\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . ($committee['spaceAfter'] ? ' class="spaced"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>';
+				$list[] = "<a href=\"{$committee['path']}/\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . ($committee['spaceAfter'] ? ' class="spaced"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>';
 			}
 			$listingHtml .= application::htmlUl ($list);
 		}
@@ -222,7 +222,7 @@ class committeeListings extends frontControllerApplication
 		# Construct the HTML, looping through each Committee and list the members
 		$html .= $this->settings['membershipIntroductionHtml'];
 		foreach ($this->committees as $moniker => $committee) {
-			$html .= "\n<h2>" . "<a href=\"{$committee['url']}\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a></h2>';
+			$html .= "\n<h2>" . "<a href=\"{$committee['path']}/\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a></h2>';
 			$html .= $committee['membersHtml'];
 		}
 		
@@ -275,7 +275,7 @@ class committeeListings extends frontControllerApplication
 		$meetings = $this->databaseConnection->select ($this->settings['database'], 'meetings', array ('committeeId' => $committee['id']), array (), true, 'date DESC, time DESC');
 		
 		# Get the files for this committee
-		$files = $this->getFiles ($committee['url']);
+		$files = $this->getFiles ($committee['path'] . '/');
 		
 		# Attach document metadata
 		$groupings = array ('agenda', 'minutes', 'papers');
@@ -354,8 +354,8 @@ class committeeListings extends frontControllerApplication
 		foreach ($meetings as $meeting) {
 			$table[] = array (
 				'date' => nl2br (date ("l jS F Y\nga", strtotime ($meeting['date'] . ' ' . $meeting['time']))) . ', ' . htmlspecialchars ($meeting['location']),
-				'agenda'  => ($meeting['agenda']  ? "<a href=\"{$committee['url']}{$meeting['agenda']}\">Agenda</a>"   : ''),
-				'minutes' => ($meeting['minutes'] ? "<a href=\"{$committee['url']}{$meeting['minutes']}\">Minutes</a>" : ''),
+				'agenda'  => ($meeting['agenda']  ? "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>"   : ''),
+				'minutes' => ($meeting['minutes'] ? "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>" : ''),
 			);
 		}
 		
