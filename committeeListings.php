@@ -217,7 +217,7 @@ class committeeListings extends frontControllerApplication
 		$committee = $this->committees[$committeeId];
 		
 		# Obtain the meetings for this committee
-		$meetings = $this->getMeetings ($committeeId);
+		$meetings = $this->getMeetings ($committee['id']);
 		
 		# Construct the HTML
 		$html = '';
@@ -247,7 +247,7 @@ class committeeListings extends frontControllerApplication
 	private function getMeetings ($committeeId)
 	{
 		# Get the data
-		$meetings = $this->databaseConnection->select ($this->settings['database'], 'meetings', array (), array (), true, 'date DESC, time DESC');
+		$meetings = $this->databaseConnection->select ($this->settings['database'], 'meetings', array ('committeeId' => $committeeId), array (), true, 'date DESC, time DESC');
 		
 		# Attach document metadata
 		foreach ($meetings as $id => $meeting) {
