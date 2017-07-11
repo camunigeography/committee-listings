@@ -18,6 +18,7 @@ class committeeListings extends frontControllerApplication
 			'databaseStrictWhere' => true,
 			'administrators' => true,
 			'useEditing' => true,
+			'supportedFileTypes' => array ('doc', 'docx', 'pdf', 'xls', 'xlsx', ),
 		);
 		
 		# Return the defaults
@@ -241,7 +242,7 @@ class committeeListings extends frontControllerApplication
 		$committee = $this->committees[$committeeId];
 		
 		# Obtain the meetings for this committee
-		$meetings = $this->getMeetings ($committee['id']);
+		$meetings = $this->getMeetings ($committee);
 		
 		# Construct the HTML
 		$html  = '';
@@ -268,10 +269,13 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to obtain meetings data
-	private function getMeetings ($committeeId)
+	private function getMeetings ($committee)
 	{
 		# Get the data
-		$meetings = $this->databaseConnection->select ($this->settings['database'], 'meetings', array ('committeeId' => $committeeId), array (), true, 'date DESC, time DESC');
+		$meetings = $this->databaseConnection->select ($this->settings['database'], 'meetings', array ('committeeId' => $committee['id']), array (), true, 'date DESC, time DESC');
+		
+		# Get the files for this committee
+		$files = $this->getFiles ($committee['url']);
 		
 		# Attach document metadata
 		foreach ($meetings as $id => $meeting) {
@@ -281,6 +285,55 @@ class committeeListings extends frontControllerApplication
 		
 		# Return the data
 		return $meetings;
+	}
+	
+	
+	# Function to parse the filesystem for files for each meeting
+	private function getFiles ($folder)
+	{
+		# Get files in the directory
+		$directory = $_SERVER['DOCUMENT_ROOT'] . $folder;
+		require_once ('directories.php');
+		$filesRaw = directories::flattenedFileListing ($directory, $this->settings['supportedFileTypes'], $includeRoot = false);
+		
+		# Organise files by date, flagging undated files (which should either be in a dated folder or have a date in the filename)
+		$files = array ();
+		foreach ($filesRaw as $index => $path) {
+			if (!preg_match ('/([0-9]{6})/', $path, $matches)) {
+				echo "<p class=\"warning\">Error: path <tt>{$path}</tt> is undated.</p>";
+			}
+			$date = $matches[1];
+			$files[$date]['papers'][] = $path;
+		}
+		
+		# Sort groups by date
+		ksort ($files);
+		
+		# Extract agenda and minutes
+		foreach ($files as $date => $papers) {
+			foreach ($papers['papers'] as $index => $path) {
+				
+				# Main documents (agendas and minutes) should always be in the top level, not in a subfolder
+				if (substr_count ($path, '/') != 1) {continue;}
+				
+				# Extract files
+				$groupings = array ('agenda', 'minutes', 'notes');
+				foreach ($groupings as $grouping) {
+					
+					# Group type name is just before a dot, e.g. Staff170711Agenda.doc
+					#!# Need to detect multiple matches, e.g. .doc and .pdf
+					if (substr_count ($path, ucfirst ($grouping) . '.')) {
+						$files[$date][$grouping] = $path;
+						unset ($files[$date]['papers'][$index]);
+					}
+				}
+			}
+		}
+		
+		// application::dumpData ($files);
+		
+		# Get the list of files
+		return $files;
 	}
 	
 	
