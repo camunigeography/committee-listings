@@ -261,7 +261,7 @@ class committeeListings extends frontControllerApplication
 				<a href=\"{$this->baseUrl}/data/meetings/\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a>
 			</p>";
 		}
-		$html .= $this->meetingsTable ($meetings);
+		$html .= $this->meetingsTable ($meetings, $committee);
 		
 		# Show the HTML
 		echo $html;
@@ -278,9 +278,12 @@ class committeeListings extends frontControllerApplication
 		$files = $this->getFiles ($committee['url']);
 		
 		# Attach document metadata
+		$groupings = array ('agenda', 'minutes', 'papers');
 		foreach ($meetings as $id => $meeting) {
-			$meetings[$id]['agenda'] = array ();
-			$meetings[$id]['minutes'] = array ();
+			$folder = preg_replace ('/^([0-9]{2})([0-9]{2})-([0-9]{2})-([0-9]{2})/', '\2\3\4', $meeting['date']);	// E.g. 2017-07-11 has folder 170711
+			foreach ($groupings as $grouping) {
+				$meetings[$id][$grouping]  = (isSet ($files[$folder]) && isSet ($files[$folder][$grouping])  ? $files[$folder][$grouping]  : array ());
+			}
 		}
 		
 		# Return the data
@@ -338,7 +341,7 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to convert a meetings list to a table
-	private function meetingsTable ($meetings)
+	private function meetingsTable ($meetings, $committee)
 	{
 		# End if none
 		if (!$meetings) {
@@ -351,8 +354,8 @@ class committeeListings extends frontControllerApplication
 		foreach ($meetings as $meeting) {
 			$table[] = array (
 				'date' => nl2br (date ("l jS F Y\nga", strtotime ($meeting['date'] . ' ' . $meeting['time']))) . ', ' . htmlspecialchars ($meeting['location']),
-				'agenda' => $meeting['agenda'],
-				'minutes' => $meeting['minutes'],
+				'agenda'  => ($meeting['agenda']  ? "<a href=\"{$committee['url']}{$meeting['agenda']}\">Agenda</a>"   : ''),
+				'minutes' => ($meeting['minutes'] ? "<a href=\"{$committee['url']}{$meeting['minutes']}\">Minutes</a>" : ''),
 			);
 		}
 		
