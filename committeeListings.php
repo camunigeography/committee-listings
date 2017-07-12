@@ -54,6 +54,13 @@ class committeeListings extends frontControllerApplication
 				'icon' => 'pencil',
 				'administrator' => true,
 			),
+			'import' => array (
+				'description' => 'Import',
+				'url' => 'import/',
+				'subtab' => 'Import',
+				'parent' => 'admin',
+				'administrator' => true,
+			),
 		);
 		
 		# Return the actions
@@ -88,7 +95,10 @@ class committeeListings extends frontControllerApplication
 			  `committeeId` int(11) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Committee',
 			  `date` date NOT NULL COMMENT 'Date',
 			  `time` time COMMENT 'Time',
-			  `location` VARCHAR(255) COMMENT 'Location'
+			  `location` VARCHAR(255) COMMENT 'Location',
+			  `note` VARCHAR(255) NULL COMMENT 'Note',
+			  `rescheduledFrom` DATE NULL COMMENT 'Rescheduled from date',
+			  `isCancelled` INT(1) NULL COMMENT 'Meeting cancelled?'
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Meetings';
 			
 			CREATE TABLE `types` (
@@ -374,6 +384,150 @@ class committeeListings extends frontControllerApplication
 		
 		# Return the HTML
 		return $html;
+	}
+	
+	
+	
+	# Function to convert existing tabular HTML files to meeting entries
+	public function import ()
+	{
+		# Ensure errors are shown
+		ini_set ('display_errors', 1);
+		
+		# Disable by default
+		$html = "\n<p class=\"warning\"><em>Not enabled - please enable in the code. Note that doing so may truncate all existing meetings data - please check the code.</em></p>";
+		echo $html;
+		return;
+		
+		# Loop through each Committee
+		$meetings = array ();
+		$i = 0;
+		foreach ($this->committees as $committee) {
+			
+			# Skip if external
+			if (substr_count ($committee['path'], 'http://')) {continue;}
+			
+			# Title
+			echo "<h3>{$committee['name']}</h3>";
+			
+			# Load the HTML
+			$oldPage = $_SERVER['DOCUMENT_ROOT'] . str_replace ('/committees2', '/committees', $committee['path']) . '/index.html';
+			$oldHtml = file_get_contents ($oldPage);
+			$dom = new DOMDocument();
+			$dom->loadHTML ($oldHtml);
+			/*
+			// See: https://stackoverflow.com/questions/17612865/extracting-a-specific-row-of-a-table-by-domdocument
+			$table = $dom->getElementsByTagName ('table')->item(0);
+			foreach ($table->getElementsByTagName('tr') as $tr) {
+				$tds = $tr->getElementsByTagName('td');
+				// $dateRaw = $tds->item(0)->nodeValue;
+				$td = $dom->saveXML($tds->item(0));
+			}
+			*/
+			# Obtain the meeting details for each entry in the table
+			# See: https://stackoverflow.com/a/37217886/180733
+			$year = NULL;
+			$xPath = new DOMXpath ($dom);
+			foreach ($xPath->query ('//table/tr/td[1]') as $tdXml) {
+				$dateRaw = ($tdXml->C14N ());
+				
+				# Normalise the HTML
+				$date = str_replace (array ('<td>', '</td>', '<sup>', '</sup>'), '', $dateRaw);
+				$date = str_replace ('th? ', 'th ', $date);
+				$date = preg_replace ('/ ([0-9]{1,2})-([0-9]{1,2})(am|pm)/', ' \1\3', $date);
+				
+				# Break off any note prefix
+				$note = '';
+				if (substr_count ($date, ' - ')) {
+					list ($note, $date) = explode (' - ', $date, 2);
+					$note = trim ($note);
+					$date = trim ($date);
+				}
+				
+				# Break off any rescheduled date prefix
+				$rescheduledFrom = '';
+				if (preg_match ('@^<s>([0-9]{2}(?:st|nd|rd|th))</s> (([0-9]{2}(?:st|nd|rd|th)) (.+))$@', $date, $matches)) {	// E.g. '<td><s>20th</s> 26th January 2016</td>' becomes date='2016-01-26', rescheduledFrom='2016-01-20'
+					$rescheduledFrom = date ('Y-m-d', strtotime (trim ($matches[1]) . ' ' . trim ($matches[4])));
+					$date = trim ($matches[2]);
+				}
+				
+				# Split out date from time/location
+				$about = '';
+				if (substr_count ($date, '<br></br>')) {
+					list ($date, $about) = explode ('<br></br>', $date, 2);
+					$date = trim ($date);
+					$about = trim ($about);
+				} else if (substr_count ($date, ',')) {
+					list ($date, $about) = explode (',', $date, 2);
+					$date = trim ($date);
+					$about = trim ($about);
+				}
+				
+				# Split out time and location
+				$time = '';
+				$location = '';
+				if (strlen ($about)) {
+					if (substr_count ($about, ',')) {
+						list ($time, $location) = explode (',', $about, 2);
+						$time = trim ($time);
+						$location = trim ($location);
+					} else {
+						$time = $about;
+					}
+				}
+				
+				# Determine if cancelled
+				$isCancelled = NULL;
+				$cancellationStrings = array ('<s>', '</s>', ' (cancelled)', ' (Cancelled)');
+				foreach ($cancellationStrings as $cancellationString) {
+					if (substr_count ($date, $cancellationString)) {
+						$isCancelled = '1';
+						$date = str_replace ($cancellationStrings, '', $date);
+						break;
+					}
+				}
+				
+				# Extract the year
+				if (preg_match ('/.+ ([0-9]{4})$/', $date, $matches)) {
+					$year = $matches[1];
+				} else {
+					$date .= ' ' . ($year - 1);	// Use the year from the previous iteration
+				}
+				
+				# Parse the date
+				$date = date ('Y-m-d', strtotime ($date));
+				if ($date == '1970-01-01') {
+					echo "<p class=\"warning\">Invalid date:</p>";
+				}
+				
+				# Parse the time
+				if (strlen ($time)) {
+					$time = date ('H:i:s', strtotime ($date . ' ' . $time));
+				}
+				
+				# Compile the meeting entry
+				$meeting = array (
+					// '_raw' => $dateRaw,
+					'committeeId' => $committee['id'],
+					'date' => trim ($date),
+					'time' => ($time ? $time : NULL),
+					'location' => ($location ? $location : NULL),
+					'note' => ($note ? $note : NULL),
+					'rescheduledFrom' => ($rescheduledFrom ? $rescheduledFrom : NULL),
+					'isCancelled' => $isCancelled,
+				);
+				
+				# Register the entry
+				$meetings[] = $meeting;
+			}
+		}
+		
+		// application::dumpData ($meetings);
+		
+		# Insert the data, replacing all existing data
+		// $this->databaseConnection->truncate ($this->settings['database'], 'meetings');
+		$this->databaseConnection->insertMany ($this->settings['database'], 'meetings', $meetings, 100);
+		application::dumpData ($this->databaseConnection->error ());
 	}
 	
 	
