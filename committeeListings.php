@@ -87,8 +87,8 @@ class committeeListings extends frontControllerApplication
 			  `id` int(11) NOT NULL COMMENT 'Automatic key',
 			  `committeeId` int(11) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Committee',
 			  `date` date NOT NULL COMMENT 'Date',
-			  `time` time NOT NULL COMMENT 'Time',
-			  `location` VARCHAR(255) NOT NULL COMMENT 'Location'
+			  `time` time COMMENT 'Time',
+			  `location` VARCHAR(255) COMMENT 'Location'
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Meetings';
 			
 			CREATE TABLE `types` (
@@ -353,7 +353,7 @@ class committeeListings extends frontControllerApplication
 		$table = array ();
 		foreach ($meetings as $meeting) {
 			$table[] = array (
-				'date' => nl2br (date ("l jS F Y\nga", strtotime ($meeting['date'] . ' ' . $meeting['time']))) . ', ' . htmlspecialchars ($meeting['location']),
+				'date' => date ('l jS F Y', strtotime ($meeting['date'])) . ($meeting['time'] || $meeting['location'] ? '<br />' : '') . ($meeting['time'] ? date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time'])) : '') . ($meeting['location'] ? ', ' . htmlspecialchars ($meeting['location']) : ''),
 				'agenda'  => ($meeting['agenda']  ? "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>"   : ''),
 				'minutes' => ($meeting['minutes'] ? "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>" : ''),
 			);
