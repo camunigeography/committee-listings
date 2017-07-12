@@ -351,12 +351,15 @@ class committeeListings extends frontControllerApplication
 		
 		# Compile the table data
 		$table = array ();
-		foreach ($meetings as $meeting) {
-			$table[] = array (
+		foreach ($meetings as $id => $meeting) {
+			$table[$id] = array (
 				'date' => date ('l jS F Y', strtotime ($meeting['date'])) . ($meeting['time'] || $meeting['location'] ? '<br />' : '') . ($meeting['time'] ? date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time'])) : '') . ($meeting['location'] ? ', ' . htmlspecialchars ($meeting['location']) : ''),
 				'agenda'  => ($meeting['agenda']  ? "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>"   : ''),
 				'minutes' => ($meeting['minutes'] ? "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>" : ''),
 			);
+			if ($this->userIsAdministrator) {
+				$table[$id]['Edit'] = "<a href=\"{$this->baseUrl}/data/meetings/{$id}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
+			}
 		}
 		
 		# Define labels
