@@ -365,7 +365,7 @@ class committeeListings extends frontControllerApplication
 			$dateIsFuture = ($meeting['date'] > date ('Y-m-d'));
 			$table[$id] = array (
 				'date' => ($meeting['isCancelled'] ? '<s>' : '') . date (($dateIsFuture ? 'l ' : '') . 'j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . ($meeting['time'] || $meeting['location'] ? '<br />' : '') . ($meeting['time'] ? date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time'])) : '') . ($meeting['location'] ? ', ' . htmlspecialchars ($meeting['location']) : '') . ($meeting['isCancelled'] ? '</s>' : ''),
-				'agenda'  => ($meeting['isCancelled'] ? 'Meeting cancelled' : ($meeting['agenda']  ? "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>"   : '')),
+				'agenda'  => ($meeting['isCancelled'] ? 'Meeting cancelled' : ($meeting['agenda']  ? "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>" . $this->additionalPapersListing ($meeting['papers'], $committee['path']) : '')),
 				'minutes' => ($meeting['isCancelled'] ? '' : ($meeting['minutes'] ? "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>" : '')),
 			);
 			if ($this->userIsAdministrator) {
@@ -387,6 +387,30 @@ class committeeListings extends frontControllerApplication
 		return $html;
 	}
 	
+	
+	# Function to list additional papers
+	private function additionalPapersListing ($papers, $committeePath)
+	{
+		# End if none
+		if (!$papers) {return false;}
+		
+		# Convert to a list of links
+		$truncateTo = 60;
+		$list = array ();
+		foreach ($papers as $path) {
+			$title = htmlspecialchars (pathinfo ($path, PATHINFO_FILENAME));
+			if (mb_strlen ($title) > $truncateTo) {
+				$title = mb_substr ($title, 0, $truncateTo) . '&hellip;';
+			}
+			$list[] = "<a href=\"{$committeePath}" . htmlspecialchars (implode ('/', array_map ('rawurlencode', explode ('/', $path)))) . '">' . $title . '</a>';
+		}
+		
+		# Convert to HTML
+		$html = "\n" . application::htmlUl ($list, 3, 'additionalpapers');
+		
+		# Return the HTML
+		return $html;
+	}
 	
 	
 	# Function to convert existing tabular HTML files to meeting entries
