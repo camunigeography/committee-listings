@@ -251,7 +251,7 @@ class committeeListings extends frontControllerApplication
 		}
 		$committee = $this->committees[$committeeId];
 		
-		# Obtain the meetings for this committee
+		# Obtain the meetings and associated papers for this committee
 		$meetings = $this->getMeetings ($committee);
 		
 		# Construct the HTML
@@ -363,9 +363,9 @@ class committeeListings extends frontControllerApplication
 		$table = array ();
 		foreach ($meetings as $id => $meeting) {
 			$table[$id] = array (
-				'date' => date ('l jS F Y', strtotime ($meeting['date'])) . ($meeting['time'] || $meeting['location'] ? '<br />' : '') . ($meeting['time'] ? date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time'])) : '') . ($meeting['location'] ? ', ' . htmlspecialchars ($meeting['location']) : ''),
-				'agenda'  => ($meeting['agenda']  ? "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>"   : ''),
-				'minutes' => ($meeting['minutes'] ? "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>" : ''),
+				'date' => ($meeting['isCancelled'] ? '<s>' : '') . date ('l jS F Y', strtotime ($meeting['date'])) . ($meeting['time'] || $meeting['location'] ? '<br />' : '') . ($meeting['time'] ? date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time'])) : '') . ($meeting['location'] ? ', ' . htmlspecialchars ($meeting['location']) : '') . ($meeting['isCancelled'] ? '</s>' : ''),
+				'agenda'  => ($meeting['isCancelled'] ? 'Meeting cancelled' : ($meeting['agenda']  ? "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>"   : '')),
+				'minutes' => ($meeting['isCancelled'] ? '' : ($meeting['minutes'] ? "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>" : '')),
 			);
 			if ($this->userIsAdministrator) {
 				$table[$id]['Edit'] = "<a href=\"{$this->baseUrl}/data/meetings/{$id}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
