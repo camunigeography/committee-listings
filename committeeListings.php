@@ -364,7 +364,7 @@ class committeeListings extends frontControllerApplication
 		foreach ($meetings as $id => $meeting) {
 			$dateIsFuture = ($meeting['date'] > date ('Y-m-d'));
 			$table[$id] = array (
-				'date' => ($meeting['isCancelled'] ? '<s>' : '') . date (($dateIsFuture ? 'l ' : '') . 'jS F Y', strtotime ($meeting['date'])) . ($meeting['time'] || $meeting['location'] ? '<br />' : '') . ($meeting['time'] ? date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time'])) : '') . ($meeting['location'] ? ', ' . htmlspecialchars ($meeting['location']) : '') . ($meeting['isCancelled'] ? '</s>' : ''),
+				'date' => ($meeting['isCancelled'] ? '<s>' : '') . date (($dateIsFuture ? 'l ' : '') . 'j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . ($meeting['time'] || $meeting['location'] ? '<br />' : '') . ($meeting['time'] ? date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time'])) : '') . ($meeting['location'] ? ', ' . htmlspecialchars ($meeting['location']) : '') . ($meeting['isCancelled'] ? '</s>' : ''),
 				'agenda'  => ($meeting['isCancelled'] ? 'Meeting cancelled' : ($meeting['agenda']  ? "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>"   : '')),
 				'minutes' => ($meeting['isCancelled'] ? '' : ($meeting['minutes'] ? "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>" : '')),
 			);
