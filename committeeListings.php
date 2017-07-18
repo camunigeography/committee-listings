@@ -283,15 +283,17 @@ class committeeListings extends frontControllerApplication
 	}
 	
 	
-	# Function to obtain meetings data
+	# Function to obtain meetings data, indexed by six-figure date; there is an assumption of only one meeting per committee per day
 	private function getMeetings ($committee)
 	{
 		# Get the data
-		$meetings = $this->databaseConnection->select ($this->settings['database'], 'meetings', array ('committeeId' => $committee['id']), array (), true, 'date DESC, time DESC');
+		$meetingsById = $this->databaseConnection->select ($this->settings['database'], 'meetings', array ('committeeId' => $committee['id']), array (), true, 'date DESC, time DESC');
 		
-		# Attach six-figure date format; e.g. 2017-04-24 would be 170424
-		foreach ($meetings as $id => $meeting) {
-			$meetings[$id]['date6'] = $this->sqlDateToDate6 ($meeting['date']);
+		# Reindex by six-figure date; e.g. 2017-04-24 would be 170424
+		$meetings = array ();
+		foreach ($meetingsById as $id => $meeting) {
+			$date6 = $this->sqlDateToDate6 ($meeting['date']);
+			$meetings[$date6] = $meeting;
 		}
 		
 		# Get the files for this committee
@@ -299,10 +301,9 @@ class committeeListings extends frontControllerApplication
 		
 		# Attach document metadata
 		$groupings = array ('agenda', 'minutes', 'papers');
-		foreach ($meetings as $id => $meeting) {
-			$folder = $meeting['date6'];
+		foreach ($meetings as $date6 => $meeting) {
 			foreach ($groupings as $grouping) {
-				$meetings[$id][$grouping]  = (isSet ($files[$folder]) && isSet ($files[$folder][$grouping])  ? $files[$folder][$grouping]  : array ());
+				$meetings[$date6][$grouping] = (isSet ($files[$date6]) && isSet ($files[$date6][$grouping]) ? $files[$date6][$grouping] : array ());
 			}
 		}
 		
@@ -333,8 +334,8 @@ class committeeListings extends frontControllerApplication
 				echo "<p class=\"warning\">Error: path <tt>{$path}</tt> is undated.</p>";
 				continue;
 			}
-			$date = $matches[1];
-			$files[$date]['papers'][] = $path;
+			$date6 = $matches[1];
+			$files[$date6]['papers'][] = $path;
 		}
 		
 		# Sort groups by date
@@ -379,7 +380,7 @@ class committeeListings extends frontControllerApplication
 		
 		# Compile the table data
 		$table = array ();
-		foreach ($meetings as $id => $meeting) {
+		foreach ($meetings as $date6 => $meeting) {
 			
 			# Date
 			$dateIsFuture = ($meeting['date'] > date ('Y-m-d'));
@@ -421,14 +422,14 @@ class committeeListings extends frontControllerApplication
 			}
 			
 			# Register the entry
-			$table[$id] = array (
+			$table[$date6] = array (
 				'date'		=> $date,
 				'agenda'	=> $agenda,
 				'minutes'	=> $minutes,
 			);
 			if ($this->userIsAdministrator) {
-				$table[$id]['edit']  = "<a title=\"Add/remove documents\" href=\"{$committee['path']}/{$meeting['date6']}/documents.html\" class=\"document\"><img src=\"/images/icons/page_white_add.png\" class=\"icon\" /></a>";
-				$table[$id]['edit'] .= "<a title=\"Edit meeting details\" href=\"{$this->baseUrl}/data/meetings/{$id}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
+				$table[$date6]['edit']  = "<a title=\"Add/remove documents\" href=\"{$committee['path']}/{$date6}/documents.html\" class=\"document\"><img src=\"/images/icons/page_white_add.png\" class=\"icon\" /></a>";
+				$table[$date6]['edit'] .= "<a title=\"Edit meeting details\" href=\"{$this->baseUrl}/data/meetings/{$meeting['id']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
 			}
 		}
 		
