@@ -47,6 +47,11 @@ class committeeListings extends frontControllerApplication
 				'url' => '%1/',
 				'usetab' => 'home',
 			),
+			'documents' => array (
+				'description' => false,
+				'url' => '%1/%2/documents.html',
+				'usetab' => 'home',
+			),
 			'editing' => array (
 				'description' => false,
 				'url' => 'data/',
@@ -455,6 +460,24 @@ class committeeListings extends frontControllerApplication
 		
 		# Return the HTML
 		return $html;
+	}
+	
+	
+	# Function to provide document management
+	public function documents ($committeeId)
+	{
+		# Ensure the committee exists
+		if (!$committeeId || !isSet ($this->committees[$committeeId])) {
+			echo $this->page404 ();
+			return false;
+		}
+		$committee = $this->committees[$committeeId];
+		
+		
+		application::dumpData ($committee);
+		application::dumpData ($_GET);
+		
+		
 	}
 	
 	
