@@ -284,13 +284,18 @@ class committeeListings extends frontControllerApplication
 		# Get the data
 		$meetings = $this->databaseConnection->select ($this->settings['database'], 'meetings', array ('committeeId' => $committee['id']), array (), true, 'date DESC, time DESC');
 		
+		# Attach six-figure date format; e.g. 2017-04-24 would be 170424
+		foreach ($meetings as $id => $meeting) {
+			$meetings[$id]['date6'] = preg_replace ('/^([0-9]{2})([0-9]{2})-([0-9]{2})-([0-9]{2})/', '\2\3\4', $meeting['date']);	// E.g. 2017-07-11 has folder 170711
+		}
+		
 		# Get the files for this committee
 		$files = $this->getFiles ($committee['path'] . '/');
 		
 		# Attach document metadata
 		$groupings = array ('agenda', 'minutes', 'papers');
 		foreach ($meetings as $id => $meeting) {
-			$folder = preg_replace ('/^([0-9]{2})([0-9]{2})-([0-9]{2})-([0-9]{2})/', '\2\3\4', $meeting['date']);	// E.g. 2017-07-11 has folder 170711
+			$folder = $meeting['date6'];
 			foreach ($groupings as $grouping) {
 				$meetings[$id][$grouping]  = (isSet ($files[$folder]) && isSet ($files[$folder][$grouping])  ? $files[$folder][$grouping]  : array ());
 			}
