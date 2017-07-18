@@ -513,6 +513,9 @@ class committeeListings extends frontControllerApplication
 		# Provide upload facilities
 		$html .= $this->upload ($committee, $meetings[$date6], $date6);
 		
+		# Provide deletion facility
+		$html .= $this->deletion ($committee, $meetings[$date6], $date6);
+		
 		# Show the HTML
 		echo $html;
 	}
@@ -522,7 +525,7 @@ class committeeListings extends frontControllerApplication
 	private function upload ($committee, $meeting, $date6)
 	{
 		# Start the HTML
-		$html = '';
+		$html = "\n<h3>Add document(s)</h3>";
 		
 		# Determine filenames
 		$filenames = array (
@@ -535,31 +538,34 @@ class committeeListings extends frontControllerApplication
 			'div' => 'ultimateform lines horizontalonly',
 			'formCompleteText' => false,
 			'displayRestrictions' => false,
+			'name' => __FUNCTION__,
 		));
 		$form->heading ('p', $this->settings['uploadTypesText']);
-		$form->heading (3, 'Agenda:');
+		$form->heading (4, 'Agenda:');
 		if ($meeting['agenda']) {
-			$form->heading ('', "<p><span class=\"warning\">Warning</span>: Uploading a new agenda file here will replace the <a href=\"{$committee['path']}{$meeting['agenda']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing agenda file</a>.</p>");
+			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting['agenda']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing agenda file</a>. Please delete it first if you wish to add a new version.</p>");
+		} else {
+			$form->upload (array (
+				'name'				=> 'agenda',
+				'title'				=> 'Agenda',
+				'allowedExtensions'	=> array ('pdf', 'doc', 'docx'),
+				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
+				'forcedFileName'	=> $filenames['agenda'],
+			));
 		}
-		$form->upload (array (
-			'name'				=> 'agenda',
-			'title'				=> 'Agenda',
-			'allowedExtensions'	=> array ('pdf', 'doc', 'docx'),
-			'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
-			'forcedFileName'	=> $filenames['agenda'],
-		));
-		$form->heading (3, 'Minutes:');
+		$form->heading (4, 'Minutes:');
 		if ($meeting['minutes']) {
-			$form->heading ('', "<p><span class=\"warning\">Warning</span>: Uploading a new minutes file here will replace the <a href=\"{$committee['path']}{$meeting['minutes']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing minutes file</a>.</p>");
+			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting['minutes']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing minutes file</a>. Please delete it first if you wish to add a new version.</p>");
+		} else {
+			$form->upload (array (
+				'name'				=> 'minutes',
+				'title'				=> 'Minutes',
+				'allowedExtensions'	=> array ('pdf', 'doc', 'docx'),
+				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
+				'forcedFileName'	=> $filenames['minutes'],
+			));
 		}
-		$form->upload (array (
-			'name'				=> 'minutes',
-			'title'				=> 'Minutes',
-			'allowedExtensions'	=> array ('pdf', 'doc', 'docx'),
-			'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
-			'forcedFileName'	=> $filenames['minutes'],
-		));
-		$form->heading (3, 'Add additional papers under agenda:');
+		$form->heading (4, 'Add additional papers under agenda:');
 		for ($i = 1; $i <= $this->settings['paperUploadSlots']; $i++) {
 			$form->upload (array (
 				'name'				=> 'papers' . $i,
@@ -568,7 +574,82 @@ class committeeListings extends frontControllerApplication
 				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/' . $date6 . '/',
 			));
 		}
-		$result = $form->process ($html);
+		
+		# Process the form
+		if ($result = $form->process ($html)) {
+			
+			# Confirmation message, resetting the HTML
+			$html  = "\n<p>{$this->tick} File(s) successfully added.</p>";
+			$html .= "\n<p><a href=\"{$committee['path']}/\">Return to the committee page</a>, where it is now shown.</p>";
+		}
+		
+		# Surround with a box
+		$html = "\n<div class=\"graybox\">" . $html . "\n</div>";
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to provide a document deletion form
+	private function deletion ($committee, $meeting, $date6)
+	{
+		# Start the HTML
+		$html = "\n<h3>Delete document</h3>";
+		
+		# Compile the files list
+		$files = array ();
+		if ($meeting['agenda']) {
+			$files[$meeting['agenda']] = 'Agenda';
+		}
+		if ($meeting['papers']) {
+			foreach ($meeting['papers'] as $paper) {
+				$files[$paper] = 'Paper: ' . pathinfo ($paper, PATHINFO_FILENAME);
+			}
+		}
+		if ($meeting['minutes']) {
+			$files[$meeting['minutes']] = 'Minutes';
+		}
+		
+		# Create the deletion form
+		$form = new form (array (
+			'div' => 'ultimateform lines horizontalonly',
+			'formCompleteText' => false,
+			'displayRestrictions' => false,
+			'nullText' => false,
+			'name' => __FUNCTION__,
+		));
+		$form->select (array (
+			'name'		=> 'file',
+			'title'		=> 'File to delete',
+			'values'	=> $files,
+			'required'	=> true,
+		));
+		$form->input (array (
+			'name'		=> 'confirm',
+			'title'		=> 'Confirm, by typing in YES',
+			'required'	=> true,
+			'regexp'	=> '^YES$',
+			'discard'	=> true,
+		));
+		
+		# Process the form
+		if ($result = $form->process ($html)) {
+			
+			# Delete file
+			$file = $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . $result['file'];
+			if (!unlink ($file)) {
+				$html = "\n<p class=\"warning\">There was a problem deleting the file.</p>";
+				#!# Inform admin
+			}
+			
+			# Confirmation message, resetting the HTML
+			$html = "\n<p>{$this->tick} File successfully deleted.</p>";
+			$html .= "\n<p><a href=\"{$committee['path']}/\">Return to the committee page.</a></p>";
+		}
+		
+		# Surround with a box
+		$html = "\n<div class=\"graybox\">" . $html . "\n</div>";
 		
 		# Return the HTML
 		return $html;
