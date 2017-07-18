@@ -362,11 +362,51 @@ class committeeListings extends frontControllerApplication
 		# Compile the table data
 		$table = array ();
 		foreach ($meetings as $id => $meeting) {
+			
+			# Date
 			$dateIsFuture = ($meeting['date'] > date ('Y-m-d'));
+			$dateFormat = ($dateIsFuture ? 'l ' : '') . 'j<\s\u\p>S</\s\u\p> F Y';
+			$date  = '';
+			$date .= date ($dateFormat, strtotime ($meeting['date']));
+			if ($meeting['time'] || $meeting['location']) {
+				$date .= '<br />';
+			}
+			if ($meeting['time']) {
+				$date .= date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time']));
+			}
+			if ($meeting['location']) {
+				$date .= ', ' . htmlspecialchars ($meeting['location']);
+			}
+			if ($meeting['isCancelled']) {
+				$date = '<s>' . $date . '</s>';
+			}
+			
+			# Agenda
+			$agenda = '';
+			if ($meeting['isCancelled']) {
+				$agenda .= 'Meeting cancelled';
+			} else {
+				if ($meeting['agenda']) {
+					$agenda .= "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>";
+					$agenda .= $this->additionalPapersListing ($meeting['papers'], $committee['path']);
+				}
+			}
+			
+			# Minutes
+			$minutes = '';
+			if ($meeting['isCancelled']) {
+				$minutes .= '';
+			} else {
+				if ($meeting['minutes']) {
+					$minutes .= "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>";
+				}
+			}
+			
+			# Register the entry
 			$table[$id] = array (
-				'date' => ($meeting['isCancelled'] ? '<s>' : '') . date (($dateIsFuture ? 'l ' : '') . 'j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . ($meeting['time'] || $meeting['location'] ? '<br />' : '') . ($meeting['time'] ? date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time'])) : '') . ($meeting['location'] ? ', ' . htmlspecialchars ($meeting['location']) : '') . ($meeting['isCancelled'] ? '</s>' : ''),
-				'agenda'  => ($meeting['isCancelled'] ? 'Meeting cancelled' : ($meeting['agenda']  ? "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>" . $this->additionalPapersListing ($meeting['papers'], $committee['path']) : '')),
-				'minutes' => ($meeting['isCancelled'] ? '' : ($meeting['minutes'] ? "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>" : '')),
+				'date'		=> $date,
+				'agenda'	=> $agenda,
+				'minutes'	=> $minutes,
 			);
 			if ($this->userIsAdministrator) {
 				$table[$id]['Edit'] = "<a href=\"{$this->baseUrl}/data/meetings/{$id}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
