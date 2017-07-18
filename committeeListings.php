@@ -18,7 +18,9 @@ class committeeListings extends frontControllerApplication
 			'databaseStrictWhere' => true,
 			'administrators' => true,
 			'useEditing' => true,
-			'supportedFileTypes' => array ('doc', 'docx', 'pdf', 'xls', 'xlsx', ),
+			'supportedFileTypes' => array ('pdf', 'doc', 'docx', 'xls', 'xlsx', ),
+			'uploadTypesText' => 'Agendas/minutes should ideally be in PDF format, but Word documents are also acceptable. (Excel is also permitted for additional papers.)',
+			'paperUploadSlots' => 5,
 		);
 		
 		# Return the defaults
@@ -86,6 +88,7 @@ class committeeListings extends frontControllerApplication
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
 			  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name',
 			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
+			  `prefixFilename` VARCHAR(255) NOT NULL COLLATE utf8_unicode_ci COMMENT 'Document prefix'
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
@@ -173,7 +176,7 @@ class committeeListings extends frontControllerApplication
 		# Get the data
 		$query = '
 			SELECT
-				committees.id, name, moniker, type, spaceAfter, introductionHtml, membersHtml, meetingsHtml
+				committees.id, name, moniker, prefixFilename, type, spaceAfter, introductionHtml, membersHtml, meetingsHtml
 			FROM committees
 			LEFT JOIN types ON committees.typeId = types.id
 			ORDER BY types.ordering, committees.ordering, committees.name
@@ -478,16 +481,21 @@ class committeeListings extends frontControllerApplication
 	# Function to provide document management
 	public function documents ($committeeId)
 	{
+		# Start the HTML
+		$html = '';
+		
 		# Ensure the committee exists
 		if (!$committeeId || !isSet ($this->committees[$committeeId])) {
-			echo $this->page404 ();
+			$html = $this->page404 ();
+			echo $html;
 			return false;
 		}
 		$committee = $this->committees[$committeeId];
 		
 		# Ensure there is a date6 parameter supplied
 		if (!isSet ($_GET['date6']) || !preg_match ('/^([0-9]{6})$/', $_GET['date6'])) {
-			echo $this->page404 ();
+			$html = $this->page404 ();
+			echo $html;
 			return false;
 		}
 		$date6 = $_GET['date6'];
@@ -497,13 +505,73 @@ class committeeListings extends frontControllerApplication
 		
 		# Validate the existence of the meeting
 		if (!isSet ($meetings[$date6])) {
-			echo $this->page404 ();
+			$html = $this->page404 ();
+			echo $html;
 			return false;
 		}
 		
-		application::dumpData ($meetings[$date6]);
+		# Provide upload facilities
+		$html .= $this->upload ($committee, $meetings[$date6], $date6);
 		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to provide a document upload form
+	private function upload ($committee, $meeting, $date6)
+	{
+		# Start the HTML
+		$html = '';
 		
+		# Determine filenames
+		$filenames = array (
+			'agenda' => $committee['prefixFilename'] . $date6 . 'Agenda',
+			'minutes' => $committee['prefixFilename'] . $date6 . 'Minutes',
+		);
+		
+		# Create the upload form
+		$form = new form (array (
+			'div' => 'ultimateform lines horizontalonly',
+			'formCompleteText' => false,
+			'displayRestrictions' => false,
+		));
+		$form->heading ('p', $this->settings['uploadTypesText']);
+		$form->heading (3, 'Agenda:');
+		if ($meeting['agenda']) {
+			$form->heading ('', "<p><span class=\"warning\">Warning</span>: Uploading a new agenda file here will replace the <a href=\"{$committee['path']}{$meeting['agenda']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing agenda file</a>.</p>");
+		}
+		$form->upload (array (
+			'name'				=> 'agenda',
+			'title'				=> 'Agenda',
+			'allowedExtensions'	=> array ('pdf', 'doc', 'docx'),
+			'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
+			'forcedFileName'	=> $filenames['agenda'],
+		));
+		$form->heading (3, 'Minutes:');
+		if ($meeting['minutes']) {
+			$form->heading ('', "<p><span class=\"warning\">Warning</span>: Uploading a new minutes file here will replace the <a href=\"{$committee['path']}{$meeting['minutes']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing minutes file</a>.</p>");
+		}
+		$form->upload (array (
+			'name'				=> 'minutes',
+			'title'				=> 'Minutes',
+			'allowedExtensions'	=> array ('pdf', 'doc', 'docx'),
+			'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
+			'forcedFileName'	=> $filenames['minutes'],
+		));
+		$form->heading (3, 'Add additional papers under agenda:');
+		for ($i = 1; $i <= $this->settings['paperUploadSlots']; $i++) {
+			$form->upload (array (
+				'name'				=> 'papers' . $i,
+				'title'				=> "Paper ({$i})",
+				'allowedExtensions'	=> $this->settings['supportedFileTypes'],
+				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/' . $date6 . '/',
+			));
+		}
+		$result = $form->process ($html);
+		
+		# Return the HTML
+		return $html;
 	}
 	
 	
