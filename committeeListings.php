@@ -291,7 +291,7 @@ class committeeListings extends frontControllerApplication
 		
 		# Attach six-figure date format; e.g. 2017-04-24 would be 170424
 		foreach ($meetings as $id => $meeting) {
-			$meetings[$id]['date6'] = preg_replace ('/^([0-9]{2})([0-9]{2})-([0-9]{2})-([0-9]{2})/', '\2\3\4', $meeting['date']);	// E.g. 2017-07-11 has folder 170711
+			$meetings[$id]['date6'] = $this->sqlDateToDate6 ($meeting['date']);
 		}
 		
 		# Get the files for this committee
@@ -308,6 +308,13 @@ class committeeListings extends frontControllerApplication
 		
 		# Return the data
 		return $meetings;
+	}
+	
+	
+	# Function to convert SQL date format to date6; e.g. 2017-04-24 would be 170424
+	private function sqlDateToDate6 ($sqlDate)
+	{
+		return $date6 = preg_replace ('/^([0-9]{2})([0-9]{2})-([0-9]{2})-([0-9]{2})/', '\2\3\4', $sqlDate);
 	}
 	
 	
