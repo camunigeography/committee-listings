@@ -484,9 +484,23 @@ class committeeListings extends frontControllerApplication
 		}
 		$committee = $this->committees[$committeeId];
 		
+		# Ensure there is a date6 parameter supplied
+		if (!isSet ($_GET['date6']) || !preg_match ('/^([0-9]{6})$/', $_GET['date6'])) {
+			echo $this->page404 ();
+			return false;
+		}
+		$date6 = $_GET['date6'];
 		
-		application::dumpData ($committee);
-		application::dumpData ($_GET);
+		# Obtain the meetings and associated papers for this committee
+		$meetings = $this->getMeetings ($committee);
+		
+		# Validate the existence of the meeting
+		if (!isSet ($meetings[$date6])) {
+			echo $this->page404 ();
+			return false;
+		}
+		
+		application::dumpData ($meetings[$date6]);
 		
 		
 	}
