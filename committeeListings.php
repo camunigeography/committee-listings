@@ -419,19 +419,21 @@ class committeeListings extends frontControllerApplication
 				'minutes'	=> $minutes,
 			);
 			if ($this->userIsAdministrator) {
-				$table[$id]['Edit'] = "<a href=\"{$this->baseUrl}/data/meetings/{$id}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
+				$table[$id]['edit']  = "<a title=\"Add/remove documents\" href=\"{$committee['path']}/{$meeting['date6']}/documents.html\" class=\"document\"><img src=\"/images/icons/page_white_add.png\" class=\"icon\" /></a>";
+				$table[$id]['edit'] .= "<a title=\"Edit meeting details\" href=\"{$this->baseUrl}/data/meetings/{$id}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
 			}
 		}
 		
 		# Define labels
 		$headings = array (
-			'date' => 'Date',
-			'agenda' => 'Agendas and<br />other papers',
-			'minutes' => 'Minutes (more recent meetings<br />may introduce corrections)',
+			'date'		=> 'Date',
+			'agenda'	=> 'Agendas and<br />other papers',
+			'minutes'	=> 'Minutes (more recent meetings<br />may introduce corrections)',
+			'edit'		=> 'Edit',
 		);
 		
 		# Render the table
-		$html = application::htmlTable ($table, $headings, 'graybox', $keyAsFirstColumn = false, false, $allowHtml = true);
+		$html = application::htmlTable ($table, $headings, 'meetings graybox', $keyAsFirstColumn = false, false, $allowHtml = true, false, $addCellClasses = true);
 		
 		# Return the HTML
 		return $html;
