@@ -103,7 +103,8 @@ class committeeListings extends frontControllerApplication
 			  `location` VARCHAR(255) COMMENT 'Location',
 			  `note` VARCHAR(255) NULL COMMENT 'Note',
 			  `rescheduledFrom` DATE NULL COMMENT 'Rescheduled from date',
-			  `isCancelled` INT(1) NULL COMMENT 'Meeting cancelled?'
+			  `isCancelled` INT(1) NULL COMMENT 'Meeting cancelled?',
+			  UNIQUE KEY `committeeId_date`(`committeeId`, `date`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Meetings';
 			
 			CREATE TABLE `types` (
