@@ -50,7 +50,7 @@ class committeeListings extends frontControllerApplication
 				'usetab' => 'home',
 			),
 			'documents' => array (
-				'description' => false,
+				'description' => false,		// Custom description set on the page
 				'url' => '%1/%2/documents.html',
 				'usetab' => 'home',
 			),
@@ -509,12 +509,16 @@ class committeeListings extends frontControllerApplication
 			echo $html;
 			return false;
 		}
+		$meeting = $meetings[$date6];
+		
+		# Page description
+		$html  = "\n<h2>Add/remove documents:<br />" . htmlspecialchars ($committee['name']) . ', ' . date ('l j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . '</h2>';
 		
 		# Provide upload facilities
-		$html .= $this->upload ($committee, $meetings[$date6], $date6);
+		$html .= $this->upload ($committee, $meeting, $date6);
 		
 		# Provide deletion facility
-		$html .= $this->deletion ($committee, $meetings[$date6], $date6);
+		$html .= $this->deletion ($committee, $meeting, $date6);
 		
 		# Show the HTML
 		echo $html;
