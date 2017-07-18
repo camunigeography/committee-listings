@@ -331,6 +331,7 @@ class committeeListings extends frontControllerApplication
 		foreach ($filesRaw as $index => $path) {
 			if (!preg_match ('/([0-9]{6})/', $path, $matches)) {
 				echo "<p class=\"warning\">Error: path <tt>{$path}</tt> is undated.</p>";
+				continue;
 			}
 			$date = $matches[1];
 			$files[$date]['papers'][] = $path;
