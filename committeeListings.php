@@ -96,7 +96,7 @@ class committeeListings extends frontControllerApplication
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committees';
 			
 			CREATE TABLE `meetings` (
-			  `id` int(11) NOT NULL COMMENT 'Automatic key',
+			  `id` int(11) NOT NULL PRIMARY KEY COMMENT 'Automatic key',
 			  `committeeId` int(11) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Committee',
 			  `date` date NOT NULL COMMENT 'Date',
 			  `time` time COMMENT 'Time',
