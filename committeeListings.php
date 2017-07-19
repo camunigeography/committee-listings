@@ -331,11 +331,11 @@ class committeeListings extends frontControllerApplication
 		require_once ('directories.php');
 		$filesRaw = directories::flattenedFileListing ($directory, $this->settings['supportedFileTypes'], $includeRoot = false);
 		
-		# Organise files by date, flagging undated files (which should either be in a dated folder or have a date in the filename)
+		# Organise files by date, skipping additional undated folders (as files should either be in a dated folder or have a date in the filename)
 		$files = array ();
 		foreach ($filesRaw as $index => $path) {
 			if (!preg_match ('/([0-9]{6})/', $path, $matches)) {
-				echo "<p class=\"warning\">Error: path <tt>{$path}</tt> is undated.</p>";
+				// echo "<p class=\"warning\">Error: path <tt>{$path}</tt> is undated.</p>";
 				continue;
 			}
 			$date6 = $matches[1];
