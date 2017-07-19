@@ -25,6 +25,6 @@
 	RedirectMatch permanent ^$applicationBaseUrl/(import)$ $applicationBaseUrl/$1/
 	RewriteRule ^$applicationBaseUrl/([a-z]+)/$ $applicationBaseUrl/index.html?action=show&item=$1 [L,QSA]
 	RedirectMatch permanent ^$applicationBaseUrl/([a-z]+)$ $applicationBaseUrl/$1/
-	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/(documents).html$ $applicationBaseUrl/index.html?action=$3&item=$1&date6=$2 [L,QSA]
+	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/(add|delete).html$ $applicationBaseUrl/index.html?action=meeting&item=$1&date6=$2&page=$3 [L,QSA]
 	
 </Macro>

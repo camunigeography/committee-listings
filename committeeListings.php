@@ -49,9 +49,9 @@ class committeeListings extends frontControllerApplication
 				'url' => '%1/',
 				'usetab' => 'home',
 			),
-			'documents' => array (
+			'meeting' => array (
 				'description' => false,		// Custom description set on the page
-				'url' => '%1/%2/documents.html',
+				'url' => '%1/%2/add.html',
 				'usetab' => 'home',
 			),
 			'editing' => array (
@@ -437,7 +437,7 @@ class committeeListings extends frontControllerApplication
 				'minutes'	=> $minutes,
 			);
 			if ($this->userIsAdministrator) {
-				$table[$date6]['edit']  = "<a title=\"Add/remove documents\" href=\"{$committee['path']}/{$date6}/documents.html\" class=\"document\"><img src=\"/images/icons/page_white_add.png\" class=\"icon\" /></a>";
+				$table[$date6]['edit']  = "<a title=\"Add/remove documents\" href=\"{$committee['path']}/{$date6}/add.html\" class=\"document\"><img src=\"/images/icons/page_white_add.png\" class=\"icon\" /></a>";
 				$table[$date6]['edit'] .= "<a title=\"Edit meeting details\" href=\"{$this->baseUrl}/data/meetings/{$meeting['id']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
 			}
 		}
@@ -483,8 +483,8 @@ class committeeListings extends frontControllerApplication
 	}
 	
 	
-	# Function to provide document management
-	public function documents ($committeeId)
+	# Function to provide management of details for a specific meeting
+	public function meeting ($committeeId)
 	{
 		# Start the HTML
 		$html = '';
@@ -516,14 +516,30 @@ class committeeListings extends frontControllerApplication
 		}
 		$meeting = $meetings[$date6];
 		
+		# Define available pages, and links for use in tabs
+		$pages = array (
+			'add'		=> "<a href=\"{$committee['path']}/{$date6}/add.html\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Add document(s)</a>",
+			'delete'	=> "<a href=\"{$committee['path']}/{$date6}/delete.html\"><img src=\"/images/icons/page_delete.png\" class=\"icon\" /> Delete document(s)</a>",
+		);
+		
+		# Validate action
+		if (!$_GET['page'] || !isSet ($pages[$_GET['page']])) {
+			$html = $this->page404 ();
+			echo $html;
+			return false;
+		}
+		$page = $_GET['page'];
+		
 		# Page description
-		$html  = "\n<h2>Add/remove documents:<br /><a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; ' . date ('l j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . '</h2>';
+		$html .= "\n<h2><a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; ' . date ('l j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . '</h2>';
+		$html .= "\n<p>Add/remove documents:</p>";
 		
-		# Provide upload facilities
-		$html .= $this->upload ($committee, $meeting, $date6);
+		# Add tabs
+		$html .= application::htmlUl ($pages, 0, 'tabs', true, false, false, false, $page);
 		
-		# Provide deletion facility
-		$html .= $this->deletion ($committee, $meeting, $date6);
+		# Run the page
+		$method = 'meeting' . ucfirst ($page);
+		$html .= $this->{$method} ($committee, $meeting, $date6);
 		
 		# Show the HTML
 		echo $html;
@@ -531,7 +547,7 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to provide a document upload form
-	private function upload ($committee, $meeting, $date6)
+	private function meetingAdd ($committee, $meeting, $date6)
 	{
 		# Start the HTML
 		$html = "\n<h3>Add document(s)</h3>";
@@ -547,7 +563,6 @@ class committeeListings extends frontControllerApplication
 			'div' => 'ultimateform lines horizontalonly',
 			'formCompleteText' => false,
 			'displayRestrictions' => false,
-			'name' => __FUNCTION__,
 			'unsavedDataProtection' => true,
 		));
 		$form->heading ('p', $this->settings['uploadTypesText']);
@@ -602,7 +617,7 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to provide a document deletion form
-	private function deletion ($committee, $meeting, $date6)
+	private function meetingDelete ($committee, $meeting, $date6)
 	{
 		# Start the HTML
 		$html = "\n<h3>Delete document</h3>";
@@ -627,7 +642,6 @@ class committeeListings extends frontControllerApplication
 			'formCompleteText' => false,
 			'displayRestrictions' => false,
 			'nullText' => false,
-			'name' => __FUNCTION__,
 			'unsavedDataProtection' => true,
 		));
 		$form->select (array (
