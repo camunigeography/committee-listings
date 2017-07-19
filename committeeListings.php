@@ -411,6 +411,11 @@ class committeeListings extends frontControllerApplication
 			} else {
 				if ($meeting['agenda']) {
 					$agenda .= "<a href=\"{$committee['path']}{$meeting['agenda']}\">Agenda</a>";
+				}
+				if ($meeting['papers']) {
+					if (!$meeting['agenda']) {
+						$agenda .= 'Agenda (not online at present)';
+					}
 					$agenda .= $this->additionalPapersListing ($meeting['papers'], $committee['path']);
 				}
 			}
