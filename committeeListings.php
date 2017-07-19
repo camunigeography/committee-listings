@@ -548,6 +548,7 @@ class committeeListings extends frontControllerApplication
 			'formCompleteText' => false,
 			'displayRestrictions' => false,
 			'name' => __FUNCTION__,
+			'unsavedDataProtection' => true,
 		));
 		$form->heading ('p', $this->settings['uploadTypesText']);
 		$form->heading (4, 'Agenda:');
@@ -627,6 +628,7 @@ class committeeListings extends frontControllerApplication
 			'displayRestrictions' => false,
 			'nullText' => false,
 			'name' => __FUNCTION__,
+			'unsavedDataProtection' => true,
 		));
 		$form->select (array (
 			'name'		=> 'file',
