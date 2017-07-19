@@ -517,7 +517,7 @@ class committeeListings extends frontControllerApplication
 		$meeting = $meetings[$date6];
 		
 		# Page description
-		$html  = "\n<h2>Add/remove documents:<br />" . htmlspecialchars ($committee['name']) . ', ' . date ('l j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . '</h2>';
+		$html  = "\n<h2>Add/remove documents:<br /><a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; ' . date ('l j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . '</h2>';
 		
 		# Provide upload facilities
 		$html .= $this->upload ($committee, $meeting, $date6);
