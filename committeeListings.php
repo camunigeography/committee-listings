@@ -21,6 +21,7 @@ class committeeListings extends frontControllerApplication
 			'supportedFileTypes' => array ('pdf', 'doc', 'docx', 'xls', 'xlsx', ),
 			'uploadTypesText' => 'Agendas/minutes should ideally be in PDF format, but Word documents are also acceptable. (Excel is also permitted for additional papers.)',
 			'paperUploadSlots' => 5,
+			'usersAutocomplete' => false,
 		);
 		
 		# Return the defaults
@@ -90,6 +91,7 @@ class committeeListings extends frontControllerApplication
 			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
 			  `prefixFilename` VARCHAR(255) NOT NULL COLLATE utf8_unicode_ci COMMENT 'Document prefix'
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
+			  `managers` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Managers (usernames, one per line)',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
 			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
@@ -176,7 +178,7 @@ class committeeListings extends frontControllerApplication
 		# Get the data
 		$query = '
 			SELECT
-				committees.id, name, moniker, prefixFilename, type, spaceAfter, introductionHtml, membersHtml, meetingsHtml
+				committees.id, name, moniker, prefixFilename, type, managers, spaceAfter, introductionHtml, membersHtml, meetingsHtml
 			FROM committees
 			LEFT JOIN types ON committees.typeId = types.id
 			ORDER BY types.ordering, committees.ordering, committees.name
@@ -190,6 +192,12 @@ class committeeListings extends frontControllerApplication
 		foreach ($data as $moniker => $committee) {
 			$data[$moniker]['isExternal'] = (preg_match ('|^https?://.+|', $moniker));
 			$data[$moniker]['path'] = ($data[$moniker]['isExternal'] ? $moniker : $this->baseUrl . '/' . $moniker);
+		}
+		
+		# Convert managers list, and add whether the user has editing rights
+		foreach ($data as $moniker => $committee) {
+			$data[$moniker]['managers'] = (trim ($committee['managers']) ? explode (', ', $committee['managers']) : array ());
+			$data[$moniker]['editRights'] = ($this->user && ($this->userIsAdministrator || in_array ($this->user, $data[$moniker]['managers'])));
 		}
 		
 		# Return the data
@@ -266,7 +274,7 @@ class committeeListings extends frontControllerApplication
 		# Construct the HTML
 		$html  = '';
 		$html .= "\n<h2>" . htmlspecialchars ($committee['name']) . '</h2>';
-		if ($this->userIsAdministrator) {
+		if ($committee['editRights']) {
 			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$this->baseUrl}/data/committees/{$committee['id']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a></p>";
 		}
 		$html .= $committee['introductionHtml'];
@@ -274,7 +282,7 @@ class committeeListings extends frontControllerApplication
 		$html .= $committee['membersHtml'];
 		$html .= "\n<h2>Meetings</h2>";
 		$html .= $committee['meetingsHtml'];
-		if ($this->userIsAdministrator) {
+		if ($committee['editRights']) {
 			$html .= "<p class=\"actions right\">
 				<a href=\"{$this->baseUrl}/data/meetings/add.html?committee={$committee['id']}\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Add</a>
 				<a href=\"{$this->baseUrl}/data/meetings/\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a>
@@ -436,7 +444,7 @@ class committeeListings extends frontControllerApplication
 				'agenda'	=> $agenda,
 				'minutes'	=> $minutes,
 			);
-			if ($this->userIsAdministrator) {
+			if ($committee['editRights']) {
 				$table[$date6]['edit']  = "<a title=\"Add/remove documents\" href=\"{$committee['path']}/{$date6}/add.html\" class=\"document\"><img src=\"/images/icons/page_white_add.png\" class=\"icon\" /></a>";
 				$table[$date6]['edit'] .= "<a title=\"Edit meeting details\" href=\"{$this->baseUrl}/data/meetings/{$meeting['id']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
 			}
@@ -496,6 +504,13 @@ class committeeListings extends frontControllerApplication
 			return false;
 		}
 		$committee = $this->committees[$committeeId];
+		
+		# Ensure the user has rights
+		if (!$committee['editRights']) {
+			$html = $this->page404 ();
+			echo $html;
+			return false;
+		}
 		
 		# Ensure there is a date6 parameter supplied
 		if (!isSet ($_GET['date6']) || !preg_match ('/^([0-9]{6})$/', $_GET['date6'])) {
@@ -841,6 +856,7 @@ class committeeListings extends frontControllerApplication
 		# Define table attributes
 		$attributes = array (
 			array ($this->settings['database'], 'meetings', 'committeeId', array ('get' => 'committee')),
+			array ($this->settings['database'], 'committees', 'managers', array ('expandable' => ', ', 'autocomplete' => $this->settings['usersAutocomplete'] , 'autocompleteOptions' => array ('delay' => 0), )),
 		);
 		
 		# Define tables to deny editing for
