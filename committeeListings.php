@@ -150,6 +150,11 @@ class committeeListings extends frontControllerApplication
 			$this->committee = $_GET['committee'];
 		}
 		
+		# Customise page title to committee if specified
+		if ($this->committee) {
+			$this->settings['applicationName'] = $this->committees[$this->committee]['name'];
+		}
+		
 	}
 	
 	
