@@ -328,7 +328,7 @@ class committeeListings extends frontControllerApplication
 		$files = $this->getFiles ($committee['path'] . '/');
 		
 		# Attach document metadata
-		$groupings = array ('agenda', 'minutes', 'papers');
+		$groupings = array ('documents', 'agenda', 'minutes', 'papers');
 		foreach ($meetings as $date6 => $meeting) {
 			foreach ($groupings as $grouping) {
 				$meetings[$date6][$grouping] = (isSet ($files[$date6]) && isSet ($files[$date6][$grouping]) ? $files[$date6][$grouping] : array ());
@@ -556,7 +556,7 @@ class committeeListings extends frontControllerApplication
 		$pages = array (
 			'edit'		=> "<a href=\"{$committee['path']}/{$date6}/\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Meeting details</a>",
 			'add'		=> "<a href=\"{$committee['path']}/{$date6}/add.html\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Add document(s)</a>",
-			'delete'	=> "<a href=\"{$committee['path']}/{$date6}/delete.html\"><img src=\"/images/icons/page_delete.png\" class=\"icon\" /> Delete document(s)</a>",
+			'delete'	=> "<a" . (!$meeting['documents'] ? ' class="empty"' : '') . " href=\"{$committee['path']}/{$date6}/delete.html\"><img src=\"/images/icons/page_delete.png\" class=\"icon\" /> Delete document(s)</a>",
 		);
 		
 		# Validate action
@@ -700,6 +700,12 @@ class committeeListings extends frontControllerApplication
 		# Start the HTML
 		$html = "\n<h3>Delete document</h3>";
 		
+		# End if no files
+		if (!$meeting['documents']) {
+			$html = "\n<p>There are currently no documents for this meeting.</p>";
+			return $html;
+		}
+		
 		# Compile the files list
 		$files = array ();
 		if ($meeting['agenda']) {
@@ -712,13 +718,6 @@ class committeeListings extends frontControllerApplication
 		}
 		if ($meeting['minutes']) {
 			$files[$meeting['minutes']] = 'Minutes';
-		}
-		
-		# End if no files
-		#!# Tab ought not to appear in the first place
-		if (!$files) {
-			$html = "\n<p>There are currently no files for this meeting.</p>";
-			return $html;
 		}
 		
 		# Create the deletion form
