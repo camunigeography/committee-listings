@@ -359,34 +359,36 @@ class committeeListings extends frontControllerApplication
 		$files = array ();
 		foreach ($filesRaw as $index => $path) {
 			if (!preg_match ('/([0-9]{6})/', $path, $matches)) {
-				// echo "<p class=\"warning\">Error: path <tt>{$path}</tt> is undated.</p>";
+				// echo "<p class=\"warning\">Warning: path <tt>{$path}</tt> is undated.</p>";
 				continue;
 			}
 			$date6 = $matches[1];
-			$files[$date6]['papers'][] = $path;
+			$files[$date6]['documents'][] = $path;	// All documents
 		}
 		
 		# Sort groups by date
 		ksort ($files);
 		
-		# Extract agenda and minutes
-		foreach ($files as $date => $papers) {
-			foreach ($papers['papers'] as $index => $path) {
+		# Classify each document into agenda, minutes, or papers
+		foreach ($files as $date6 => $papers) {
+			foreach ($papers['documents'] as $index => $path) {
 				
-				# Main documents (agendas and minutes) should always be in the top level, not in a subfolder
-				if (substr_count ($path, '/') != 1) {continue;}
-				
-				# Extract files
-				$groupings = array ('agenda', 'minutes', 'notes');
-				foreach ($groupings as $grouping) {
-					
-					# Group type name is just before a dot, e.g. Staff170711Agenda.doc
-					#!# Need to detect multiple matches, e.g. .doc and .pdf
-					if (substr_count ($path, ucfirst ($grouping) . '.')) {
-						$files[$date][$grouping] = $path;
-						unset ($files[$date]['papers'][$index]);
+				# Extract main documents (agendas and minutes), which should always be in the top level, not in a subfolder
+				if (substr_count ($path, '/') == 1) {
+					$groupings = array ('agenda', 'minutes', 'notes');
+					foreach ($groupings as $grouping) {
+						
+						# Group type name is just before a dot, e.g. Staff170711Agenda.doc
+						#!# Need to detect multiple matches, e.g. .doc and .pdf
+						if (substr_count ($path, ucfirst ($grouping) . '.')) {
+							$files[$date6][$grouping] = $path;
+							continue 2;		// Found, so continue to next file
+						}
 					}
 				}
+				
+				# Register as general paper
+				$files[$date6]['papers'][] = $path;
 			}
 		}
 		
