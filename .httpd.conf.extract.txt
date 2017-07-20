@@ -26,7 +26,7 @@
 	RewriteRule ^$applicationBaseUrl/([a-z]+)/$ $applicationBaseUrl/index.html?action=show&committee=$1 [L]
 	RedirectMatch permanent ^$applicationBaseUrl/([a-z]+)$ $applicationBaseUrl/$1/
 	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/$ $applicationBaseUrl/index.html?action=meeting&committee=$1&date6=$2&page=edit [L]
-	RedirectMatch permanent ^$applicationBaseUrl/([a-z]+)$ $applicationBaseUrl/$1/
+	RedirectMatch permanent ^$applicationBaseUrl/([a-z]+)/([0-9]{6})$ $applicationBaseUrl/$1/$2/
 	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/(add|delete).html$ $applicationBaseUrl/index.html?action=meeting&committee=$1&date6=$2&page=$3 [L]
 	
 </Macro>
