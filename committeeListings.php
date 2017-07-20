@@ -449,8 +449,8 @@ class committeeListings extends frontControllerApplication
 				'minutes'	=> $minutes,
 			);
 			if ($committee['editRights']) {
-				$table[$date6]['edit']  = "<a title=\"Add/remove documents\" href=\"{$committee['path']}/{$date6}/add.html\" class=\"document\"><img src=\"/images/icons/page_white_add.png\" class=\"icon\" /></a>";
-				$table[$date6]['edit'] .= "<a title=\"Edit meeting details\" href=\"{$this->baseUrl}/data/meetings/{$meeting['id']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
+				$table[$date6]['edit']  = "<a title=\"Edit meeting details\" href=\"{$committee['path']}/{$date6}/\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
+				$table[$date6]['edit'] .= "<a title=\"Add/remove documents\" href=\"{$committee['path']}/{$date6}/add.html\" class=\"document\"><img src=\"/images/icons/page_white_add.png\" class=\"icon\" /></a>";
 			}
 		}
 		
@@ -537,6 +537,7 @@ class committeeListings extends frontControllerApplication
 		
 		# Define available pages, and links for use in tabs
 		$pages = array (
+			'edit'		=> "<a href=\"{$committee['path']}/{$date6}/\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Meeting details</a>",
 			'add'		=> "<a href=\"{$committee['path']}/{$date6}/add.html\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Add document(s)</a>",
 			'delete'	=> "<a href=\"{$committee['path']}/{$date6}/delete.html\"><img src=\"/images/icons/page_delete.png\" class=\"icon\" /> Delete document(s)</a>",
 		);
@@ -551,7 +552,6 @@ class committeeListings extends frontControllerApplication
 		
 		# Page description
 		$html .= "\n<h2><a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; ' . date ('l j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . '</h2>';
-		$html .= "\n<p>Add/remove documents:</p>";
 		
 		# Add tabs
 		$html .= application::htmlUl ($pages, 0, 'tabs', true, false, false, false, $page);
@@ -562,6 +562,48 @@ class committeeListings extends frontControllerApplication
 		
 		# Show the HTML
 		echo $html;
+	}
+	
+	
+	# Function to provide a meeting editing form
+	private function meetingEdit ($committee, $meeting, $date6)
+	{
+		# Start the HTML
+		$html  = "\n<h3>Meeting details</h3>";
+		
+		# Create the editing form
+		$form = new form (array (
+			'div' => 'ultimateform lines horizontalonly',
+			'formCompleteText' => false,
+			'displayRestrictions' => false,
+			'databaseConnection' => $this->databaseConnection,
+			'unsavedDataProtection' => true,
+			'div' => 'graybox ultimateform lines horizontalonly',
+			'picker' => true,
+		));
+		$form->dataBinding (array (
+			'database' => $this->settings['database'],
+			'table' => $this->settings['table'],
+			'exclude' => array ('id', 'committeeId', ),
+			'int1ToCheckbox' => true,
+			'data' => $meeting,
+			'attributes' => array (
+				'location' => array ('description' => 'Please avoid abbreviations.'),
+				'note' => array ('description' => 'This note will be public.'),
+			),
+		));
+		if ($result = $form->process ($html)) {
+			
+			# Update the data
+			$this->databaseConnection->update ($this->settings['database'], $this->settings['table'], $result, array ('id' => $meeting['id']));
+			
+			# Confirmation message, resetting the HTML
+			$html  = "\n<p>{$this->tick} Meeting details successfully updated.</p>";
+			$html .= "\n<p><a href=\"{$committee['path']}/\">Return to the committee page</a>, where it is shown.</p>";
+		}
+		
+		# Return the HTML
+		return $html;
 	}
 	
 	
