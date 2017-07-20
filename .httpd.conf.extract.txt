@@ -19,14 +19,14 @@
 	Use MacroSinenomineEmbeddedWholeDb "$applicationBaseUrl" "/data" "editing"
 	
 	# Application directives
-	RewriteRule ^$applicationBaseUrl/(membership)/$ $applicationBaseUrl/index.html?action=$1 [L,QSA]
+	RewriteRule ^$applicationBaseUrl/(membership)/$ $applicationBaseUrl/index.html?action=$1 [L]
 	RedirectMatch permanent ^$applicationBaseUrl/(membership)$ $applicationBaseUrl/$1/
-	RewriteRule ^$applicationBaseUrl/(import)/$ $applicationBaseUrl/index.html?action=$1 [L,QSA]
+	RewriteRule ^$applicationBaseUrl/(import)/$ $applicationBaseUrl/index.html?action=$1 [L]
 	RedirectMatch permanent ^$applicationBaseUrl/(import)$ $applicationBaseUrl/$1/
-	RewriteRule ^$applicationBaseUrl/([a-z]+)/$ $applicationBaseUrl/index.html?action=show&item=$1 [L,QSA]
+	RewriteRule ^$applicationBaseUrl/([a-z]+)/$ $applicationBaseUrl/index.html?action=show&item=$1 [L]
 	RedirectMatch permanent ^$applicationBaseUrl/([a-z]+)$ $applicationBaseUrl/$1/
 	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/$ $applicationBaseUrl/index.html?action=meeting&item=$1&date6=$2&page=edit [L]
 	RedirectMatch permanent ^$applicationBaseUrl/([a-z]+)$ $applicationBaseUrl/$1/
-	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/(add|delete).html$ $applicationBaseUrl/index.html?action=meeting&item=$1&date6=$2&page=$3 [L,QSA]
+	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/(add|delete).html$ $applicationBaseUrl/index.html?action=meeting&item=$1&date6=$2&page=$3 [L]
 	
 </Macro>
