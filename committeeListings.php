@@ -139,6 +139,17 @@ class committeeListings extends frontControllerApplication
 		# Get the Committees
 		$this->committees = $this->getCommittees ();
 		
+		# Determine selected committee, if any, rejecting invalid values
+		$this->committee = false;
+		if (isSet ($_GET['committee']) && strlen ($_GET['committee'])) {
+			if (!isSet ($this->committees[$_GET['committee']])) {
+				$html = $this->page404 ();
+				echo $html;
+				return false;
+			}
+			$this->committee = $_GET['committee'];
+		}
+		
 	}
 	
 	
@@ -259,14 +270,14 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Committee page
-	public function show ($committeeId)
+	public function show ()
 	{
-		# Ensure the committee exists
-		if (!$committeeId || !isSet ($this->committees[$committeeId])) {
+		# Ensure the committee is specified
+		if (!$this->committee) {
 			echo $this->page404 ();
 			return false;
 		}
-		$committee = $this->committees[$committeeId];
+		$committee = $this->committees[$this->committee];
 		
 		# Obtain the meetings and associated papers for this committee
 		$meetings = $this->getMeetings ($committee);
@@ -496,18 +507,17 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to provide management of details for a specific meeting
-	public function meeting ($committeeId)
+	public function meeting ()
 	{
 		# Start the HTML
 		$html = '';
 		
-		# Ensure the committee exists
-		if (!$committeeId || !isSet ($this->committees[$committeeId])) {
-			$html = $this->page404 ();
-			echo $html;
+		# Ensure the committee is specified
+		if (!$this->committee) {
+			echo $this->page404 ();
 			return false;
 		}
-		$committee = $this->committees[$committeeId];
+		$committee = $this->committees[$this->committee];
 		
 		# Ensure the user has rights
 		if (!$committee['editRights']) {
