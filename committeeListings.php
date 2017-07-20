@@ -461,7 +461,7 @@ class committeeListings extends frontControllerApplication
 			);
 			if ($committee['editRights']) {
 				$table[$date6]['edit']  = "<a title=\"Edit meeting details\" href=\"{$committee['path']}/{$date6}/\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /></a>";
-				$table[$date6]['edit'] .= "<a title=\"Add/remove documents\" href=\"{$committee['path']}/{$date6}/add.html\" class=\"document\"><img src=\"/images/icons/page_white_add.png\" class=\"icon\" /></a>";
+				$table[$date6]['edit'] .= "<a title=\"Add/remove documents\" href=\"{$committee['path']}/{$date6}/add.html\" class=\"document\"><img src=\"/images/icons/page_copy.png\" class=\"icon\" /></a>";
 			}
 		}
 		
