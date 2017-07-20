@@ -424,8 +424,12 @@ class committeeListings extends frontControllerApplication
 					if (!$meeting['agenda']) {
 						$agenda .= 'Agenda (not online at present)';
 					}
-					$agenda .= $this->additionalPapersListing ($meeting['papers'], $committee['path']);
 				}
+			}
+			
+			# Papers, which should be shown even if there is no agenda or if the meeting is cancelled
+			if ($meeting['papers']) {
+				$agenda .= $this->additionalPapersListing ($meeting['papers'], $committee['path']);
 			}
 			
 			# Minutes
