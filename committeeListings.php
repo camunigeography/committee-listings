@@ -651,6 +651,13 @@ class committeeListings extends frontControllerApplication
 			$files[$meeting['minutes']] = 'Minutes';
 		}
 		
+		# End if no files
+		#!# Tab ought not to appear in the first place
+		if (!$files) {
+			$html = "\n<p>There are currently no files for this meeting.</p>";
+			return $html;
+		}
+		
 		# Create the deletion form
 		$form = new form (array (
 			'div' => 'ultimateform lines horizontalonly',
