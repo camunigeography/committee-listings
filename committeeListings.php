@@ -612,18 +612,59 @@ class committeeListings extends frontControllerApplication
 		if ($result = $form->process ($html)) {
 			
 			# Update the data
-			$this->databaseConnection->update ($this->settings['database'], $this->settings['table'], $result, array ('id' => $meeting['id']));
+			if (!$this->databaseConnection->update ($this->settings['database'], $this->settings['table'], $result, array ('id' => $meeting['id']))) {
+				application::dumpData ($this->databaseConnection->error ());
+			}
 			
-			# Determine the new date6
-			$newdate6 = $this->sqlDateToDate6 ($result['date']);
+			# If changing the date, amend the dates in the document filename, ensuring any containing folder is present
+			if ($result['date'] != $meeting['date']) {
+				$this->redateFiles ($committee['path'], $meeting['documents'], $meeting['date'], $result['date']);
+			}
 			
 			# Confirmation message, resetting the HTML
+			$newDate6 = $this->sqlDateToDate6 ($result['date']);
 			$html  = "\n<p>{$this->tick} Meeting details successfully updated.</p>";
-			$html .= "\n<p><a href=\"{$committee['path']}/#meeting{$newdate6}\">Return to the committee page</a>, where it is shown.</p>";
+			$html .= "\n<p><a href=\"{$committee['path']}/#meeting{$newDate6}\">Return to the committee page</a>, where it is shown.</p>";
 		}
 		
 		# Return the HTML
 		return $html;
+	}
+	
+	
+	# Function to amend dates in document filenames, handling directory moves
+	private function redateFiles ($committeePath, $files, $oldDateSql, $newDateSql)
+	{
+		# Convert SQL dates to date6 format
+		$oldDate6 = $this->sqlDateToDate6 ($oldDateSql);
+		$newDate6 = $this->sqlDateToDate6 ($newDateSql);
+		
+		# Loop through each file
+		foreach ($files as $path) {
+			
+			# Detemine the old and new filenames
+			$newPath = str_replace ($oldDate6, $newDate6, $path);
+			$oldFile = $_SERVER['DOCUMENT_ROOT'] . $committeePath . $path;
+			$newFile = $_SERVER['DOCUMENT_ROOT'] . $committeePath . $newPath;
+			
+			# Ensure the path for the renamed filename exists
+			$newFileDirectory = dirname ($newFile);
+			if (!is_dir ($newFileDirectory)) {
+				mkdir ($newFileDirectory);
+			}
+			
+			# Rename the file
+			rename ($oldFile, $newFile);
+			
+			# Remove old directory if now empty
+			$oldFileDirectory = dirname ($oldFile);
+			if (is_dir ($oldFileDirectory)) {
+				$directoryIsEmpty = !(new \FilesystemIterator ($oldFileDirectory))->valid ();	// See: https://stackoverflow.com/a/18856880/180733
+				if ($directoryIsEmpty) {
+					rmdir ($oldFileDirectory);
+				}
+			}
+		}
 	}
 	
 	
