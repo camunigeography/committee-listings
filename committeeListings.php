@@ -462,7 +462,7 @@ class committeeListings extends frontControllerApplication
 			
 			# Register the entry
 			$table[$date6] = array (
-				'date'		=> $date,
+				'date'		=> "<a id=\"meeting{$date6}\"></a>" . $date,
 				'agenda'	=> $agenda,
 				'minutes'	=> $minutes,
 			);
@@ -614,9 +614,12 @@ class committeeListings extends frontControllerApplication
 			# Update the data
 			$this->databaseConnection->update ($this->settings['database'], $this->settings['table'], $result, array ('id' => $meeting['id']));
 			
+			# Determine the new date6
+			$newdate6 = $this->sqlDateToDate6 ($result['date']);
+			
 			# Confirmation message, resetting the HTML
 			$html  = "\n<p>{$this->tick} Meeting details successfully updated.</p>";
-			$html .= "\n<p><a href=\"{$committee['path']}/\">Return to the committee page</a>, where it is shown.</p>";
+			$html .= "\n<p><a href=\"{$committee['path']}/#meeting{$newdate6}\">Return to the committee page</a>, where it is shown.</p>";
 		}
 		
 		# Return the HTML
