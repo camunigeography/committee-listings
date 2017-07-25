@@ -690,7 +690,7 @@ class committeeListings extends frontControllerApplication
 		$form->heading ('p', $this->settings['uploadTypesText']);
 		$form->heading (4, 'Agenda:');
 		if ($meeting['agenda']) {
-			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting['agenda']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing agenda file</a>. Please delete it below first if you wish to add a new version.</p>");
+			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting['agenda']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing agenda file</a>. Please <a href=\"{$committee['path']}/{$date6}/delete.html\">delete it on the deletion page first</a> if you wish to add a new version.</p>");
 		} else {
 			$form->upload (array (
 				'name'				=> 'agenda',
@@ -702,7 +702,7 @@ class committeeListings extends frontControllerApplication
 		}
 		$form->heading (4, 'Minutes:');
 		if ($meeting['minutes']) {
-			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting['minutes']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing minutes file</a>. Please delete it below first if you wish to add a new version.</p>");
+			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting['minutes']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing minutes file</a>. Please <a href=\"{$committee['path']}/{$date6}/delete.html\">delete it on the deletion page first</a> if you wish to add a new version.</p>");
 		} else {
 			$form->upload (array (
 				'name'				=> 'minutes',
