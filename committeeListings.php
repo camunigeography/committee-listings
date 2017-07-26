@@ -44,11 +44,13 @@ class committeeListings extends frontControllerApplication
 				'description' => 'Schedule',
 				'url' => 'schedule/',
 				'tab' => 'Schedule',
+				'icon' => 'date',
 			),
 			'membership' => array (
 				'description' => 'Committee membership',
 				'url' => 'membership/',
 				'tab' => 'Members',
+				'icon' => 'status_online',
 			),
 			'show' => array (
 				'description' => false,
@@ -146,11 +148,6 @@ class committeeListings extends frontControllerApplication
 	# Additional initialisation, pre-actions
 	public function mainPreActions ()
 	{
-		# Hide tabs to ordinary users
-		if (!$this->userIsAdministrator) {
-			$this->settings['disableTabs'] = true;
-		}
-		
 		# Get the Committees
 		$this->committees = $this->getCommittees ();
 		
