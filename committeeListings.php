@@ -621,11 +621,14 @@ class committeeListings extends frontControllerApplication
 			return false;
 		}
 		
+		# Obtain the meetings and associated papers for this committee
+		$meetings = $this->getMeetings ($committee);
+		
 		# Title
 		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; Add meeting</h2>';
 		
 		# Create the meeting form
-		$html .= $this->meetingForm ($committee);
+		$html .= $this->meetingForm ($committee, array (), $meetings);
 		
 		# Show the HTML
 		echo $html;
@@ -694,7 +697,7 @@ class committeeListings extends frontControllerApplication
 		
 		# Run the page
 		$method = 'meeting' . ucfirst ($page);
-		$html .= $this->{$method} ($committee, $meeting, $date6);
+		$html .= $this->{$method} ($committee, $meeting, $date6, $meetings);
 		
 		# Show the HTML
 		echo $html;
@@ -702,13 +705,13 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to provide a meeting editing form
-	private function meetingEdit ($committee, $meeting, $date6)
+	private function meetingEdit ($committee, $meeting, $date6, $meetings)
 	{
 		# Start the HTML
 		$html  = "\n<h3>Meeting details</h3>";
 		
 		# Create the meeting form, passing in the meeting data
-		$html .= $this->meetingForm ($committee, $meeting);
+		$html .= $this->meetingForm ($committee, $meeting, $meetings);
 		
 		# Return the HTML
 		return $html;
@@ -716,10 +719,19 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to create a meeting form
-	private function meetingForm ($committee, $meeting = array ())
+	private function meetingForm ($committee, $meeting = array (), $existingMeetings = array ())
 	{
 		# Start the HTML
 		$html = '';
+		
+		# Construct a list of existing meeting dates
+		$existingMeetingDates = array ();
+		foreach ($existingMeetings as $existingMeeting) {
+			if ($meeting) {
+				if ($existingMeeting['id'] == $meeting['id']) {continue;}	// Exclude current entry
+			}
+			$existingMeetingDates[] = $existingMeeting['date'];
+		}
 		
 		# Create the editing form
 		$form = new form (array (
@@ -742,6 +754,16 @@ class committeeListings extends frontControllerApplication
 				'note' => array ('description' => 'This note will be public.'),
 			),
 		));
+		#!# Ideally this would instead be done using a 'current' parameter to form::datetime()
+		if ($existingMeetingDates) {
+			if ($unfinalisedData = $form->getUnfinalisedData ()) {
+				if ($unfinalisedData['date']) {
+					if (in_array ($unfinalisedData['date'], $existingMeetingDates)) {
+						$form->registerProblem ('date', 'There is already a meeting for this committee on the date you selected.', 'date');
+					}
+				}
+			}
+		}
 		if ($result = $form->process ($html)) {
 			
 			# Fix the committee ID
