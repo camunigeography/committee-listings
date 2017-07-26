@@ -646,7 +646,7 @@ class committeeListings extends frontControllerApplication
 		$page = $_GET['page'];
 		
 		# Page description
-		$html .= "\n<h2><a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; ' . date ('l j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . '</h2>';
+		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; ' . date ('l j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . '</h2>';
 		
 		# Add tabs
 		$html .= application::htmlUl ($pages, 0, 'tabs', true, false, false, false, $page);
