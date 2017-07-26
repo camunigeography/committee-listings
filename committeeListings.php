@@ -504,7 +504,7 @@ class committeeListings extends frontControllerApplication
 		if (!$papers) {return false;}
 		
 		# Convert to a list of links
-		$truncateTo = 60;
+		$truncateTo = 45;
 		$list = array ();
 		foreach ($papers as $path) {
 			$title = htmlspecialchars (pathinfo ($path, PATHINFO_FILENAME));
