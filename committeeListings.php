@@ -50,6 +50,11 @@ class committeeListings extends frontControllerApplication
 				'url' => '%1/',
 				'usetab' => 'home',
 			),
+			'edit' => array (
+				'description' => false,
+				'url' => '%1/edit.html',
+				'usetab' => 'home',
+			),
 			'meeting' => array (
 				'description' => false,		// Custom description set on the page
 				'url' => '%1/%2/add.html',
@@ -194,7 +199,8 @@ class committeeListings extends frontControllerApplication
 		# Get the data
 		$query = '
 			SELECT
-				committees.id, name, moniker, prefixFilename, type, managers, spaceAfter, introductionHtml, membersHtml, meetingsHtml
+				committees.*,
+				types.type
 			FROM committees
 			LEFT JOIN types ON committees.typeId = types.id
 			ORDER BY types.ordering, committees.ordering, committees.name
@@ -202,7 +208,7 @@ class committeeListings extends frontControllerApplication
 		$data = $this->databaseConnection->getData ($query);
 		
 		# Reindex by moniker
-		$data = application::reindex ($data, 'moniker');
+		$data = application::reindex ($data, 'moniker', false);
 		
 		# Add link data to the model
 		foreach ($data as $moniker => $committee) {
@@ -291,7 +297,7 @@ class committeeListings extends frontControllerApplication
 		$html  = '';
 		$html .= "\n<h2>" . htmlspecialchars ($committee['name']) . '</h2>';
 		if ($committee['editRights']) {
-			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$this->baseUrl}/data/committees/{$committee['id']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit overview</a></p>";
+			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$committee['path']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit overview</a></p>";
 		}
 		$html .= $committee['introductionHtml'];
 		$html .= "\n<h2>Members of the Committee</h2>";
@@ -510,6 +516,78 @@ class committeeListings extends frontControllerApplication
 		
 		# Return the HTML
 		return $html;
+	}
+	
+	
+	# Committee editing page
+	public function edit ()
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Ensure the committee is specified
+		if (!$this->committee) {
+			echo $this->page404 ();
+			return false;
+		}
+		$committee = $this->committees[$this->committee];
+		
+		# Ensure the user has rights
+		if (!$committee['editRights']) {
+			$html = $this->page404 ();
+			echo $html;
+			return false;
+		}
+		
+		# Title
+		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; Edit committee overview details</h2>';
+		
+		# Create the editing form
+		$form = new form (array (
+			'div' => 'ultimateform lines horizontalonly',
+			'formCompleteText' => false,
+			'displayRestrictions' => false,
+			'databaseConnection' => $this->databaseConnection,
+			'unsavedDataProtection' => true,
+			'div' => 'graybox ultimateform lines horizontalonly',
+			'picker' => true,
+			'reappear' => true,
+			'richtextEditorToolbarSet' => 'BasicLonger',
+			'richtextWidth' => 600,
+			'richtextHeight' => 200,
+			'submitButtonPosition' => 'both',
+		));
+		$table = 'committees';
+		$form->dataBinding (array (
+			'database' => $this->settings['database'],
+			'table' => $table,
+			'intelligence' => true,
+			'exclude' => array ('id'),
+			'int1ToCheckbox' => true,
+			'data' => $committee,
+			'simpleJoin' => true,
+			'attributes' => array (
+				'moniker' => array ('editable' => false, ),
+				'prefixFilename' => array ('editable' => false, ),
+				'managers' => array ('expandable' => ',', 'autocomplete' => $this->settings['usersAutocomplete'] , 'autocompleteOptions' => array ('delay' => 0), ),
+			),
+		));
+		if ($result = $form->process ($html)) {
+			
+			# Update the data
+			if (!$this->databaseConnection->update ($this->settings['database'], $table, $result, array ('id' => $committee['id']))) {
+				application::dumpData ($this->databaseConnection->error ());
+			}
+			
+			# Confirmation message, resetting the HTML
+			$confirmationHtml  = "\n<div class=\"graybox\">";
+			$confirmationHtml .= "\n<p>{$this->tick} Committee details successfully updated.</p>";
+			$confirmationHtml .= "\n</div>";
+			$html = $confirmationHtml . $html;
+		}
+		
+		# Show the HTML
+		echo $html;
 	}
 	
 	
@@ -969,7 +1047,7 @@ class committeeListings extends frontControllerApplication
 		# Define table attributes
 		$attributes = array (
 			array ($this->settings['database'], 'meetings', 'committeeId', array ('get' => 'committee')),
-			array ($this->settings['database'], 'committees', 'managers', array ('expandable' => ', ', 'autocomplete' => $this->settings['usersAutocomplete'] , 'autocompleteOptions' => array ('delay' => 0), )),
+			array ($this->settings['database'], 'committees', 'managers', array ('expandable' => ',', 'autocomplete' => $this->settings['usersAutocomplete'] , 'autocompleteOptions' => array ('delay' => 0), )),
 		);
 		
 		# Define tables to deny editing for
