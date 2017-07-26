@@ -40,6 +40,11 @@ class committeeListings extends frontControllerApplication
 				'tab' => 'Committees',
 				'icon' => 'house',
 			),
+			'schedule' => array (
+				'description' => 'Schedule',
+				'url' => 'schedule/',
+				'tab' => 'Schedule',
+			),
 			'membership' => array (
 				'description' => 'Committee membership',
 				'url' => 'membership/',
@@ -278,6 +283,68 @@ class committeeListings extends frontControllerApplication
 		
 		# Show the HTML
 		echo $html;
+	}
+	
+	
+	# Committee schedule
+	public function schedule ()
+	{
+		# Start the HTML
+		$html = "\n<p>This listing gives the schedule of forthcoming meetings.</p>";
+		
+		# Get forthcoming meetings
+		if (!$meetings = $this->getForthcomingMeetings ()) {
+			$html .= "<p><em>There are currently no forthcoming meetings scheduled.</em></p>";
+			echo $html;
+			return;
+		}
+		
+		# Format data
+		foreach ($meetings as $id => $meeting) {
+			$date6 = $this->sqlDateToDate6 ($meeting['date']);
+			$meetings[$id]['date'] = "<a href=\"{$meeting['path']}/#meeting{$date6}\">" . date ($this->dateFormatBasic, strtotime ($meeting['date'])) . '</a>';
+			$meetings[$id]['name'] = "<a href=\"{$meeting['path']}/\">" . htmlspecialchars ($meeting['name']) . '</a>';
+			$meetings[$id]['time'] = date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time']));
+			unset ($meetings[$id]['id']);
+			unset ($meetings[$id]['moniker']);
+			unset ($meetings[$id]['path']);
+			unset ($meetings[$id]['isExternal']);
+		}
+		
+		# Construct the HTML, looping through each Committee and list the members
+		$tableHeadingSubstitutions = $this->databaseConnection->getHeadings ($this->settings['database'], $this->settings['table']);
+		$tableHeadingSubstitutions['name'] = 'Committee';
+		$html .= application::htmlTable ($meetings, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = array ('date', 'name'));
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to get forthcoming meetings
+	private function getForthcomingMeetings ()
+	{
+		# Obtain the data
+		$query = "
+			SELECT
+				meetings.id,
+				meetings.date,
+				committees.name,
+				committees.moniker,
+				meetings.time,
+				meetings.location
+			FROM {$this->settings['database']}.{$this->settings['table']}
+			LEFT JOIN committees ON {$this->settings['table']}.committeeId = committees.id
+			WHERE `date` >= CAST(NOW() AS DATE)
+			ORDER BY date, time, ordering, name
+		";
+		$data = $this->databaseConnection->getData ($query, "{$this->settings['database']}.{$this->settings['table']}");
+		
+		# Add link data to the model
+		$data = $this->addLinkValues ($data);
+		
+		# Return the data
+		return $data;
 	}
 	
 	
