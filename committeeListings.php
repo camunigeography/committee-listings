@@ -663,6 +663,20 @@ class committeeListings extends frontControllerApplication
 		# Start the HTML
 		$html  = "\n<h3>Meeting details</h3>";
 		
+		# Create the meeting form, passing in the meeting data
+		$html .= $this->meetingForm ($committee, $meeting);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to create a meeting form
+	private function meetingForm ($committee, $meeting)
+	{
+		# Start the HTML
+		$html = '';
+		
 		# Create the editing form
 		$form = new form (array (
 			'div' => 'ultimateform lines horizontalonly',
