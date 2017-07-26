@@ -432,7 +432,7 @@ class committeeListings extends frontControllerApplication
 				$date .= date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time']));
 			}
 			if ($meeting['location']) {
-				$date .= ', ' . htmlspecialchars ($meeting['location']);
+				$date .= ($meeting['time'] ? ', ' : '') . htmlspecialchars ($meeting['location']);
 			}
 			if ($meeting['isCancelled']) {
 				$date = '<s>' . $date . '</s>';
