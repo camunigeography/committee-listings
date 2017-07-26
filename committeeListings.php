@@ -423,16 +423,17 @@ class committeeListings extends frontControllerApplication
 			# Date
 			$dateIsFuture = ($meeting['date'] > date ('Y-m-d'));
 			$dateFormat = ($dateIsFuture ? 'l ' : '') . 'j<\s\u\p>S</\s\u\p> F Y';
-			$date  = '';
-			$date .= date ($dateFormat, strtotime ($meeting['date']));
-			if ($meeting['time'] || $meeting['location']) {
-				$date .= '<br />';
-			}
-			if ($meeting['time']) {
-				$date .= date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time']));
-			}
-			if ($meeting['location']) {
-				$date .= ($meeting['time'] ? ', ' : '') . htmlspecialchars ($meeting['location']);
+			$date  = date ($dateFormat, strtotime ($meeting['date']));
+			if ($dateIsFuture) {
+				if ($meeting['time'] || $meeting['location']) {
+					$date .= '<br />';
+				}
+				if ($meeting['time']) {
+					$date .= date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time']));
+				}
+				if ($meeting['location']) {
+					$date .= ($meeting['time'] ? ', ' : '') . htmlspecialchars ($meeting['location']);
+				}
 			}
 			if ($meeting['isCancelled']) {
 				$date = '<s>' . $date . '</s>';
