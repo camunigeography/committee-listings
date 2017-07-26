@@ -323,7 +323,7 @@ class committeeListings extends frontControllerApplication
 	private function getMeetings ($committee)
 	{
 		# Get the data
-		$meetingsById = $this->databaseConnection->select ($this->settings['database'], 'meetings', array ('committeeId' => $committee['id']), array (), true, 'date DESC, time DESC');
+		$meetingsById = $this->databaseConnection->select ($this->settings['database'], $this->settings['table'], array ('committeeId' => $committee['id']), array (), true, 'date DESC, time DESC');
 		
 		# Reindex by six-figure date; e.g. 2017-04-24 would be 170424
 		$meetings = array ();
@@ -1112,8 +1112,8 @@ class committeeListings extends frontControllerApplication
 		// application::dumpData ($meetings);
 		
 		# Insert the data, replacing all existing data
-		$this->databaseConnection->truncate ($this->settings['database'], 'meetings', true);
-		$this->databaseConnection->insertMany ($this->settings['database'], 'meetings', $meetings, 100);
+		$this->databaseConnection->truncate ($this->settings['database'], $this->settings['table'], true);
+		$this->databaseConnection->insertMany ($this->settings['database'], $this->settings['table'], $meetings, 100);
 		application::dumpData ($this->databaseConnection->error ());
 	}
 	
@@ -1134,7 +1134,7 @@ class committeeListings extends frontControllerApplication
 		
 		# Define table attributes
 		$attributes = array (
-			array ($this->settings['database'], 'meetings', 'committeeId', array ('get' => 'committee')),
+			array ($this->settings['database'], $this->settings['table'], 'committeeId', array ('get' => 'committee')),
 			array ($this->settings['database'], 'committees', 'managers', array ('expandable' => ',', 'autocomplete' => $this->settings['usersAutocomplete'] , 'autocompleteOptions' => array ('delay' => 0), )),
 		);
 		
