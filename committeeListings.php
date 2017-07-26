@@ -171,6 +171,9 @@ class committeeListings extends frontControllerApplication
 	# Additional initialisation
 	public function main ()
 	{
+		# Set a standard date format
+		$this->dateFormatBasic = 'j<\s\u\p>S</\s\u\p> F Y';
+		
 	}
 	
 	
@@ -433,8 +436,7 @@ class committeeListings extends frontControllerApplication
 			
 			# Date
 			$dateIsFuture = ($meeting['date'] > date ('Y-m-d'));
-			$dateFormatBasic = 'j<\s\u\p>S</\s\u\p> F Y';
-			$dateFormat = ($dateIsFuture ? 'l ' : '') . $dateFormatBasic;
+			$dateFormat = ($dateIsFuture ? 'l ' : '') . $this->dateFormatBasic;
 			$date  = date ($dateFormat, strtotime ($meeting['date']));
 			if ($dateIsFuture) {
 				if ($meeting['time'] || $meeting['location']) {
@@ -701,7 +703,7 @@ class committeeListings extends frontControllerApplication
 		$page = $_GET['page'];
 		
 		# Page description
-		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; ' . date ('l j<\s\u\p>S</\s\u\p> F Y', strtotime ($meeting['date'])) . '</h2>';
+		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; ' . date ('l ' . $this->dateFormatBasic, strtotime ($meeting['date'])) . '</h2>';
 		
 		# Add tabs
 		$html .= application::htmlUl ($pages, 0, 'tabs', true, false, false, false, $page);
