@@ -6,6 +6,7 @@
 #committeelistings ul.additionalpapers {margin-top: 6px;}
 #committeelistings ul.additionalpapers li {font-size: 0.92em;}
 
+#committeelistings table.meetings tr th, #committeelistings table.meetings tr td {padding-right: 20px;}
 #committeelistings table.meetings tr td.edit {width: 70px;}
 #committeelistings .actions a, #committeelistings table.meetings tr td.edit a {margin-left: 4px; border: 1px solid #eee; padding: 5px; border-radius: 4px;}
 #committeelistings .actions a:hover, #committeelistings table.meetings tr td.edit a:hover {background-color: #ddd; color: black; text-decoration: none;}
