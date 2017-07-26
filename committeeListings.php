@@ -55,6 +55,11 @@ class committeeListings extends frontControllerApplication
 				'url' => '%1/edit.html',
 				'usetab' => 'home',
 			),
+			'add' => array (
+				'description' => false,
+				'url' => '%1/edit.html',
+				'usetab' => 'home',
+			),
 			'meeting' => array (
 				'description' => false,		// Custom description set on the page
 				'url' => '%1/%2/add.html',
@@ -305,7 +310,7 @@ class committeeListings extends frontControllerApplication
 		$html .= "\n<h2>Meetings</h2>";
 		$html .= $committee['meetingsHtml'];
 		if ($committee['editRights']) {
-			$html .= "<p class=\"actions right\"><a href=\"{$this->baseUrl}/data/meetings/add.html?committeeId={$committee['id']}\"><img src=\"/images/icons/add.png\" class=\"icon\" /> Add meeting</a></p>";
+			$html .= "<p class=\"actions right\"><a href=\"{$committee['path']}/add.html\"><img src=\"/images/icons/add.png\" class=\"icon\" /> Add meeting</a></p>";
 		}
 		$html .= $this->meetingsTable ($meetings, $committee);
 		
@@ -588,6 +593,37 @@ class committeeListings extends frontControllerApplication
 	}
 	
 	
+	# Function to add a meeting entry to a committee
+	public function add ()
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Ensure the committee is specified
+		if (!$this->committee) {
+			echo $this->page404 ();
+			return false;
+		}
+		$committee = $this->committees[$this->committee];
+		
+		# Ensure the user has rights
+		if (!$committee['editRights']) {
+			$html = $this->page404 ();
+			echo $html;
+			return false;
+		}
+		
+		# Title
+		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; Add meeting</h2>';
+		
+		# Create the meeting form
+		$html .= $this->meetingForm ($committee);
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
 	# Function to provide management of details for a specific meeting
 	public function meeting ()
 	{
@@ -672,7 +708,7 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to create a meeting form
-	private function meetingForm ($committee, $meeting)
+	private function meetingForm ($committee, $meeting = array ())
 	{
 		# Start the HTML
 		$html = '';
@@ -700,20 +736,31 @@ class committeeListings extends frontControllerApplication
 		));
 		if ($result = $form->process ($html)) {
 			
+			# Fix the committee ID
+			$result['committeeId'] = $committee['id'];
+			
 			# Update the data
-			if (!$this->databaseConnection->update ($this->settings['database'], $this->settings['table'], $result, array ('id' => $meeting['id']))) {
+			$action = ($meeting ? 'update' : 'insert');
+			$parameter4 = ($meeting ? array ('id' => $meeting['id']) : false);
+			if (!$this->databaseConnection->{$action} ($this->settings['database'], $this->settings['table'], $result, $parameter4)) {
 				application::dumpData ($this->databaseConnection->error ());
 			}
 			
 			# If changing the date, amend the dates in the document filename, ensuring any containing folder is present
-			if ($result['date'] != $meeting['date']) {
-				$this->redateFiles ($committee['path'], $meeting['documents'], $meeting['date'], $result['date']);
+			if ($meeting) {
+				if ($result['date'] != $meeting['date']) {
+					$this->redateFiles ($committee['path'], $meeting['documents'], $meeting['date'], $result['date']);
+				}
 			}
 			
 			# Confirmation message, resetting the HTML
 			$newDate6 = $this->sqlDateToDate6 ($result['date']);
-			$html  = "\n<p>{$this->tick} Meeting details successfully updated.</p>";
-			$html .= "\n<p><a href=\"{$committee['path']}/#meeting{$newDate6}\">Return to the committee page</a>, where it is shown.</p>";
+			$html  = "\n<p>{$this->tick} Meeting details successfully " . $action = ($meeting ? 'updated' : 'added') . ".</p>";
+			if ($meeting) {
+				$html .= "\n<p><a href=\"{$committee['path']}/#meeting{$newDate6}\">Return to the committee page</a>, where it is shown.</p>";
+			} else {
+				$html .= "\n<p><a href=\"{$committee['path']}/{$newDate6}/add.html\">Add documents for the meeting</a> or <a href=\"{$committee['path']}/#meeting{$newDate6}\">return to the committee page</a>, where it is shown.</p>";
+			}
 		}
 		
 		# Return the HTML
