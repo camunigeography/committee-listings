@@ -216,10 +216,7 @@ class committeeListings extends frontControllerApplication
 		$data = application::reindex ($data, 'moniker', false);
 		
 		# Add link data to the model
-		foreach ($data as $moniker => $committee) {
-			$data[$moniker]['isExternal'] = (preg_match ('|^https?://.+|', $moniker));
-			$data[$moniker]['path'] = ($data[$moniker]['isExternal'] ? $moniker : $this->baseUrl . '/' . $moniker);
-		}
+		$data = $this->addLinkValues ($data);
 		
 		# Convert managers list, and add whether the user has editing rights
 		foreach ($data as $moniker => $committee) {
@@ -231,6 +228,20 @@ class committeeListings extends frontControllerApplication
 		return $data;
 	}
 	
+	
+	# Function to enhance committee/meetings model data with a path link
+	private function addLinkValues ($data)
+	{
+		# Add path and whether the link is external
+		foreach ($data as $id => $entry) {
+			$moniker = $entry['moniker'];
+			$data[$id]['isExternal'] = (preg_match ('|^https?://.+|', $moniker));
+			$data[$id]['path'] = ($data[$id]['isExternal'] ? $moniker : $this->baseUrl . '/' . $moniker);
+		}
+		
+		# Return the amended data
+		return $data;
+	}
 	
 	
 	# Welcome screen
