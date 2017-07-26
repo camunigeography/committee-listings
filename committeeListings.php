@@ -291,7 +291,7 @@ class committeeListings extends frontControllerApplication
 		$html  = '';
 		$html .= "\n<h2>" . htmlspecialchars ($committee['name']) . '</h2>';
 		if ($committee['editRights']) {
-			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$this->baseUrl}/data/committees/{$committee['id']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit</a></p>";
+			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$this->baseUrl}/data/committees/{$committee['id']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit overview</a></p>";
 		}
 		$html .= $committee['introductionHtml'];
 		$html .= "\n<h2>Members of the Committee</h2>";
