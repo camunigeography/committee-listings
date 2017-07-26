@@ -422,11 +422,12 @@ class committeeListings extends frontControllerApplication
 			
 			# Date
 			$dateIsFuture = ($meeting['date'] > date ('Y-m-d'));
-			$dateFormat = ($dateIsFuture ? 'l ' : '') . 'j<\s\u\p>S</\s\u\p> F Y';
+			$dateFormatBasic = 'j<\s\u\p>S</\s\u\p> F Y';
+			$dateFormat = ($dateIsFuture ? 'l ' : '') . $dateFormatBasic;
 			$date  = date ($dateFormat, strtotime ($meeting['date']));
 			if ($dateIsFuture) {
 				if ($meeting['time'] || $meeting['location']) {
-					$date .= '<br />';
+					$date .= "<br />\n";
 				}
 				if ($meeting['time']) {
 					$date .= date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time']));
@@ -437,6 +438,9 @@ class committeeListings extends frontControllerApplication
 			}
 			if ($meeting['isCancelled']) {
 				$date = '<s>' . $date . '</s>';
+			}
+			if ($meeting['rescheduledFrom']) {
+				$date .= "<br /><br />\n<s class='comment'>" . date ($dateFormatBasic, strtotime ($meeting['rescheduledFrom'])) . '</s>';
 			}
 			
 			# Agenda
