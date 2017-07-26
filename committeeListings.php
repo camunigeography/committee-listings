@@ -442,6 +442,9 @@ class committeeListings extends frontControllerApplication
 			if ($meeting['rescheduledFrom']) {
 				$date .= "<br /><br />\n<s class='comment'>" . date ($dateFormatBasic, strtotime ($meeting['rescheduledFrom'])) . '</s>';
 			}
+			if ($meeting['note']) {
+				$date .= "<br /><br />\n<em>" . htmlspecialchars ($meeting['note']) . '</em>';
+			}
 			
 			# Agenda
 			$agenda = '';
