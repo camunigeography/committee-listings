@@ -297,9 +297,11 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# Format data
+		$today = date ('Y-m-d');
 		foreach ($meetings as $id => $meeting) {
 			$date6 = $this->sqlDateToDate6 ($meeting['date']);
-			$meetings[$id]['date'] = "<a href=\"{$meeting['path']}/#meeting{$date6}\">" . date ($this->dateFormatBasic, strtotime ($meeting['date'])) . '</a>';
+			$isToday = ($meeting['date'] == $today);
+			$meetings[$id]['date'] = "<a href=\"{$meeting['path']}/#meeting{$date6}\">" . date ($this->dateFormatBasic, strtotime ($meeting['date'])) . '</a>' . ($isToday ? ' - <em>today</em>' : '');
 			$meetings[$id]['name'] = "<a href=\"{$meeting['path']}/\">" . htmlspecialchars ($meeting['name']) . '</a>';
 			$meetings[$id]['time'] = date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time']));
 			unset ($meetings[$id]['id']);
