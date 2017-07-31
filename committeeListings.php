@@ -63,16 +63,19 @@ class committeeListings extends frontControllerApplication
 				'description' => false,
 				'url' => '%1/edit.html',
 				'usetab' => 'home',
+				'authentication' => true,
 			),
 			'add' => array (
 				'description' => false,
 				'url' => '%1/edit.html',
 				'usetab' => 'home',
+				'authentication' => true,
 			),
 			'meeting' => array (
 				'description' => false,		// Custom description set on the page
 				'url' => '%1/%2/add.html',
 				'usetab' => 'home',
+				'authentication' => true,
 			),
 			'editing' => array (
 				'description' => false,
