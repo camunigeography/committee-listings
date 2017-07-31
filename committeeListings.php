@@ -528,7 +528,7 @@ class committeeListings extends frontControllerApplication
 				$date = '<s>' . $date . '</s>';
 			}
 			if ($meeting['rescheduledFrom']) {
-				$date .= "<br /><br />\n<s class='comment'>" . date ($dateFormatBasic, strtotime ($meeting['rescheduledFrom'])) . '</s>';
+				$date .= "<br /><br />\n<s class='comment'>" . date ($this->dateFormatBasic, strtotime ($meeting['rescheduledFrom'])) . '</s>';
 			}
 			if ($meeting['note']) {
 				$date .= "<br /><br />\n<em>" . htmlspecialchars ($meeting['note']) . '</em>';
