@@ -227,7 +227,7 @@ class committeeListings extends frontControllerApplication
 	}
 	
 	
-	# Function to get the Committees
+	# Function to get the Committees and their related access rights
 	private function getCommittees (&$errorHtml = false)
 	{
 		# Get the data
@@ -263,6 +263,16 @@ class committeeListings extends frontControllerApplication
 				}
 				$staff = $this->settings['getStaffFunction'] ();
 				break;
+			}
+		}
+		
+		# Add whether the user has viewing rights; in staff-only areas, a user must be logged in (which is also checked later in mainPreActions) and be in the staff list
+		foreach ($data as $moniker => $committee) {
+			$data[$moniker]['viewingRights'] = true;
+			if ($committee['staffOnly']) {
+				if (!$this->user || !isSet ($staff[$this->user])) {
+					$data[$moniker]['viewingRights'] = false;
+				}
 			}
 		}
 		
@@ -414,6 +424,14 @@ class committeeListings extends frontControllerApplication
 			return false;
 		}
 		$committee = $this->committees[$this->committee];
+		
+		# Ensure the user has viewing rights
+		if (!$committee['viewingRights']) {
+			$html  = "\n<p>This committee is only visible to staff.</p>";
+			$html .= "\n<p>If you think you should have access, please <a href=\"{$this->baseUrl}/feedback.html\">contact us</a>.</p>";
+			echo $html;
+			return false;
+		}
 		
 		# Obtain the meetings and associated papers for this committee
 		$meetings = $this->getMeetings ($committee);
@@ -661,7 +679,7 @@ class committeeListings extends frontControllerApplication
 		}
 		$committee = $this->committees[$this->committee];
 		
-		# Ensure the user has rights
+		# Ensure the user has edit rights
 		if (!$committee['editRights']) {
 			$html = $this->page404 ();
 			echo $html;
@@ -733,7 +751,7 @@ class committeeListings extends frontControllerApplication
 		}
 		$committee = $this->committees[$this->committee];
 		
-		# Ensure the user has rights
+		# Ensure the user has edit rights
 		if (!$committee['editRights']) {
 			$html = $this->page404 ();
 			echo $html;
@@ -767,7 +785,7 @@ class committeeListings extends frontControllerApplication
 		}
 		$committee = $this->committees[$this->committee];
 		
-		# Ensure the user has rights
+		# Ensure the user has edit rights
 		if (!$committee['editRights']) {
 			$html = $this->page404 ();
 			echo $html;
@@ -1100,6 +1118,15 @@ class committeeListings extends frontControllerApplication
 		# Ensure the committee is specified
 		if (!$this->committee) {
 			echo $this->page404 ();
+			return false;
+		}
+		$committee = $this->committees[$this->committee];
+		
+		# Ensure the user has viewing rights
+		if (!$committee['viewingRights']) {
+			$html  = "\n<p>This committee is only visible to staff.</p>";
+			$html .= "\n<p>If you think you should have access, please <a href=\"{$this->baseUrl}/feedback.html\">contact us</a>.</p>";
+			echo $html;
 			return false;
 		}
 		
