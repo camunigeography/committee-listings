@@ -59,29 +59,34 @@ class committeeListings extends frontControllerApplication
 				'url' => '%1/',
 				'usetab' => 'home',
 				'authentication' => $this->requireLogin,
+				'committeeSpecific' => true,
 			),
 			'document' => array (
 				'description' => false,
 				'url' => false,
 				'authentication' => $this->requireLogin,
+				'committeeSpecific' => true,
 			),
 			'edit' => array (
 				'description' => false,
 				'url' => '%1/edit.html',
 				'usetab' => 'home',
 				'authentication' => true,
+				'committeeSpecific' => true,
 			),
 			'add' => array (
 				'description' => false,
 				'url' => '%1/edit.html',
 				'usetab' => 'home',
 				'authentication' => true,
+				'committeeSpecific' => true,
 			),
 			'meeting' => array (
 				'description' => false,		// Custom description set on the page
 				'url' => '%1/%2/add.html',
 				'usetab' => 'home',
 				'authentication' => true,
+				'committeeSpecific' => true,
 			),
 			'editing' => array (
 				'description' => false,
@@ -169,24 +174,24 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# Determine selected committee, if any, rejecting invalid values
-		$this->committee = false;
+		$this->committeeId = false;
 		if (isSet ($_GET['committee']) && strlen ($_GET['committee'])) {
 			if (!isSet ($this->committees[$_GET['committee']])) {
 				$html = $this->page404 ();
 				echo $html;
 				return false;
 			}
-			$this->committee = $_GET['committee'];
+			$this->committeeId = $_GET['committee'];
 		}
 		
 		# Customise page title to committee if specified
-		if ($this->committee) {
-			$this->settings['applicationName'] = $this->committees[$this->committee]['name'];
+		if ($this->committeeId) {
+			$this->settings['applicationName'] = $this->committees[$this->committeeId]['name'];
 		}
 		
 		# If within a particular committee, set to require login if required
-		if ($this->committee) {
-			if ($this->committees[$this->committee]['staffOnly']) {
+		if ($this->committeeId) {
+			if ($this->committees[$this->committeeId]['staffOnly']) {
 				$this->requireLogin = true;
 			}
 		}
@@ -199,6 +204,14 @@ class committeeListings extends frontControllerApplication
 	{
 		# Set a standard date format
 		$this->dateFormatBasic = 'j<\s\u\p>S</\s\u\p> F Y';
+		
+		# On committee-specific pages, ensure the committee is specified
+		if (isSet ($this->actions[$this->action]['committeeSpecific'])) {
+			if (!$this->committeeId) {
+				echo $this->page404 ();
+				return false;
+			}
+		}
 		
 	}
 	
@@ -216,7 +229,7 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# Define the current committee, if set
-		$selected = $this->baseUrl . '/' . ($this->committee ? $this->committee . '/' : false);
+		$selected = $this->baseUrl . '/' . ($this->committeeId ? $this->committeeId . '/' : false);
 		
 		# Compile the HTML
 		$html = pureContent::htmlJumplist ($droplist, $selected, '', 'jumplist', 0, $class = 'jumplist ultimateform');
@@ -417,12 +430,7 @@ class committeeListings extends frontControllerApplication
 	# Committee page
 	public function committee ()
 	{
-		# Ensure the committee is specified
-		if (!$this->committee) {
-			echo $this->page404 ();
-			return false;
-		}
-		$committee = $this->committees[$this->committee];
+		$committee = $this->committees[$this->committeeId];
 		
 		# Ensure the user has viewing rights
 		if (!$committee['viewingRights']) {
@@ -671,12 +679,7 @@ class committeeListings extends frontControllerApplication
 		# Start the HTML
 		$html = '';
 		
-		# Ensure the committee is specified
-		if (!$this->committee) {
-			echo $this->page404 ();
-			return false;
-		}
-		$committee = $this->committees[$this->committee];
+		$committee = $this->committees[$this->committeeId];
 		
 		# Ensure the user has edit rights
 		if (!$committee['editRights']) {
@@ -743,12 +746,7 @@ class committeeListings extends frontControllerApplication
 		# Start the HTML
 		$html = '';
 		
-		# Ensure the committee is specified
-		if (!$this->committee) {
-			echo $this->page404 ();
-			return false;
-		}
-		$committee = $this->committees[$this->committee];
+		$committee = $this->committees[$this->committeeId];
 		
 		# Ensure the user has edit rights
 		if (!$committee['editRights']) {
@@ -777,12 +775,7 @@ class committeeListings extends frontControllerApplication
 		# Start the HTML
 		$html = '';
 		
-		# Ensure the committee is specified
-		if (!$this->committee) {
-			echo $this->page404 ();
-			return false;
-		}
-		$committee = $this->committees[$this->committee];
+		$committee = $this->committees[$this->committeeId];
 		
 		# Ensure the user has edit rights
 		if (!$committee['editRights']) {
@@ -1114,12 +1107,7 @@ class committeeListings extends frontControllerApplication
 	# Function to serve a document
 	public function document ($file)
 	{
-		# Ensure the committee is specified
-		if (!$this->committee) {
-			echo $this->page404 ();
-			return false;
-		}
-		$committee = $this->committees[$this->committee];
+		$committee = $this->committees[$this->committeeId];
 		
 		# Ensure the user has viewing rights
 		if (!$committee['viewingRights']) {
@@ -1138,7 +1126,7 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# Construct the file path
-		$file = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/' . $this->committee . '/' . $file;
+		$file = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/' . $this->committeeId . '/' . $file;
 		
 		# Ensure the file exists
 		if (!is_file ($file)) {
