@@ -1097,6 +1097,12 @@ class committeeListings extends frontControllerApplication
 	# File serving
 	public function serve ($file)
 	{
+		# Ensure the committee is specified
+		if (!$this->committee) {
+			echo $this->page404 ();
+			return false;
+		}
+		
 		# Ensure the file path is not tampered
 		$file = str_replace ('\\', '/', $file);
 		if (substr_count ($file, '../')) {
