@@ -206,10 +206,6 @@ class committeeListings extends frontControllerApplication
 	# Drop-down list for switching committee
 	public function guiSearchBox ()
 	{
-		# End if not enabled
-		$enableActions = array ('home', 'committee', 'edit', 'add', 'meeting');
-		if (!in_array ($this->action, $enableActions)) {return false;}
-		
 		# Create the droplist
 		$droplist = array ();
 		$droplist[$this->baseUrl . '/'] = 'List of committees';
@@ -219,8 +215,8 @@ class committeeListings extends frontControllerApplication
 			$droplist[$url] = (mb_strlen ($committee['name']) > $truncateTo ? mb_substr ($committee['name'], 0, $truncateTo) . chr(0xe2).chr(0x80).chr(0xa6) : $committee['name']);
 		}
 		
-		# Define the current committee
-		$selected = $this->baseUrl . '/' . $this->committee . '/';
+		# Define the current committee, if set
+		$selected = $this->baseUrl . '/' . ($this->committee ? $this->committee . '/' : false);
 		
 		# Compile the HTML
 		$html = pureContent::htmlJumplist ($droplist, $selected, '', 'jumplist', 0, $class = 'jumplist ultimateform');
