@@ -22,6 +22,7 @@ class committeeListings extends frontControllerApplication
 			'uploadTypesText' => 'Agendas/minutes should ideally be in PDF format, but Word documents are also acceptable. (Excel is also permitted for additional papers.)',
 			'paperUploadSlots' => 5,
 			'usersAutocomplete' => false,
+			'itemCaseSensitive' => true,
 		);
 		
 		# Return the defaults
@@ -85,6 +86,10 @@ class committeeListings extends frontControllerApplication
 				'subtab' => 'Import',
 				'parent' => 'admin',
 				'administrator' => true,
+			),
+			'serve' => array (
+				'description' => false,
+				'url' => false,
 			),
 		);
 		
@@ -1051,6 +1056,41 @@ class committeeListings extends frontControllerApplication
 		
 		# Return the HTML
 		return $html;
+	}
+	
+	
+	# File serving
+	public function serve ($file)
+	{
+		# Ensure the file path is not tampered
+		$file = str_replace ('\\', '/', $file);
+		if (substr_count ($file, '../')) {
+			$html = $this->page404 ();
+			echo $html;
+			return false;
+		}
+		
+		# Construct the file path
+		$file = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/' . $this->committee . '/' . $file;
+		
+		# Ensure the file exists
+		if (!is_file ($file)) {
+			$html = $this->page404 ();
+			echo $html;
+			return false;
+		}
+		
+		# Determine the MIME type and send the appropriate header
+		$mimeType = mime_content_type ($file);
+		header ('Content-type: ' . $mimeType);
+		
+		# Serve the file, eliminating any header/footer loading by auto_prepend_file/auto_append_file
+		header ('Content-Length: ' . filesize ($file));
+		ob_end_clean ();
+		ob_start ();
+		readfile ($file);
+		ob_end_flush ();
+		die;
 	}
 	
 	
