@@ -213,6 +213,11 @@ class committeeListings extends frontControllerApplication
 			}
 		}
 		
+		# On committee-specific pages, set the committee property for ease of access
+		if (isSet ($this->actions[$this->action]['committeeSpecific'])) {
+			$this->committee = $this->committees[$this->committeeId];
+		}
+		
 	}
 	
 	
@@ -430,10 +435,9 @@ class committeeListings extends frontControllerApplication
 	# Committee page
 	public function committee ()
 	{
-		$committee = $this->committees[$this->committeeId];
-		
+
 		# Ensure the user has viewing rights
-		if (!$committee['viewingRights']) {
+		if (!$this->committee['viewingRights']) {
 			$html  = "\n<p>This committee is only visible to staff.</p>";
 			$html .= "\n<p>If you think you should have access, please <a href=\"{$this->baseUrl}/feedback.html\">contact us</a>.</p>";
 			echo $html;
@@ -441,23 +445,23 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# Obtain the meetings and associated papers for this committee
-		$meetings = $this->getMeetings ($committee);
+		$meetings = $this->getMeetings ($this->committee);
 		
 		# Construct the HTML
 		$html  = '';
-		$html .= "\n<h2>" . htmlspecialchars ($committee['name']) . '</h2>';
-		if ($committee['editRights']) {
-			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$committee['path']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit overview</a></p>";
+		$html .= "\n<h2>" . htmlspecialchars ($this->committee['name']) . '</h2>';
+		if ($this->committee['editRights']) {
+			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$this->committee['path']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit overview</a></p>";
 		}
-		$html .= $committee['introductionHtml'];
+		$html .= $this->committee['introductionHtml'];
 		$html .= "\n<h2>Members of the Committee</h2>";
-		$html .= $committee['membersHtml'];
+		$html .= $this->committee['membersHtml'];
 		$html .= "\n<h2>Meetings</h2>";
-		$html .= $committee['meetingsHtml'];
-		if ($committee['editRights']) {
-			$html .= "<p class=\"actions right\"><a href=\"{$committee['path']}/add.html\"><img src=\"/images/icons/add.png\" class=\"icon\" /> Add meeting</a></p>";
+		$html .= $this->committee['meetingsHtml'];
+		if ($this->committee['editRights']) {
+			$html .= "<p class=\"actions right\"><a href=\"{$this->committee['path']}/add.html\"><img src=\"/images/icons/add.png\" class=\"icon\" /> Add meeting</a></p>";
 		}
-		$html .= $this->meetingsTable ($meetings, $committee);
+		$html .= $this->meetingsTable ($meetings, $this->committee);
 		
 		# Show the HTML
 		echo $html;
@@ -679,17 +683,15 @@ class committeeListings extends frontControllerApplication
 		# Start the HTML
 		$html = '';
 		
-		$committee = $this->committees[$this->committeeId];
-		
 		# Ensure the user has edit rights
-		if (!$committee['editRights']) {
+		if (!$this->committee['editRights']) {
 			$html = $this->page404 ();
 			echo $html;
 			return false;
 		}
 		
 		# Title
-		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; Edit committee overview details</h2>';
+		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$this->committee['path']}/\">" . htmlspecialchars ($this->committee['name']) . '</a> &raquo; Edit committee overview details</h2>';
 		
 		# Create the editing form
 		$form = new form (array (
@@ -713,7 +715,7 @@ class committeeListings extends frontControllerApplication
 			'intelligence' => true,
 			'exclude' => array ('id'),
 			'int1ToCheckbox' => true,
-			'data' => $committee,
+			'data' => $this->committee,
 			'simpleJoin' => true,
 			'attributes' => array (
 				'moniker' => array ('editable' => false, ),
@@ -724,7 +726,7 @@ class committeeListings extends frontControllerApplication
 		if ($result = $form->process ($html)) {
 			
 			# Update the data
-			if (!$this->databaseConnection->update ($this->settings['database'], $table, $result, array ('id' => $committee['id']))) {
+			if (!$this->databaseConnection->update ($this->settings['database'], $table, $result, array ('id' => $this->committee['id']))) {
 				application::dumpData ($this->databaseConnection->error ());
 			}
 			
@@ -746,23 +748,21 @@ class committeeListings extends frontControllerApplication
 		# Start the HTML
 		$html = '';
 		
-		$committee = $this->committees[$this->committeeId];
-		
 		# Ensure the user has edit rights
-		if (!$committee['editRights']) {
+		if (!$this->committee['editRights']) {
 			$html = $this->page404 ();
 			echo $html;
 			return false;
 		}
 		
 		# Obtain the meetings and associated papers for this committee
-		$meetings = $this->getMeetings ($committee);
+		$meetings = $this->getMeetings ($this->committee);
 		
 		# Title
-		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; Add meeting</h2>';
+		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$this->committee['path']}/\">" . htmlspecialchars ($this->committee['name']) . '</a> &raquo; Add meeting</h2>';
 		
 		# Create the meeting form
-		$html .= $this->meetingForm ($committee, array (), $meetings);
+		$html .= $this->meetingForm ($this->committee, array (), $meetings);
 		
 		# Show the HTML
 		echo $html;
@@ -775,10 +775,8 @@ class committeeListings extends frontControllerApplication
 		# Start the HTML
 		$html = '';
 		
-		$committee = $this->committees[$this->committeeId];
-		
 		# Ensure the user has edit rights
-		if (!$committee['editRights']) {
+		if (!$this->committee['editRights']) {
 			$html = $this->page404 ();
 			echo $html;
 			return false;
@@ -793,7 +791,7 @@ class committeeListings extends frontControllerApplication
 		$date6 = $_GET['date6'];
 		
 		# Obtain the meetings and associated papers for this committee
-		$meetings = $this->getMeetings ($committee);
+		$meetings = $this->getMeetings ($this->committee);
 		
 		# Validate the existence of the meeting
 		if (!isSet ($meetings[$date6])) {
@@ -805,9 +803,9 @@ class committeeListings extends frontControllerApplication
 		
 		# Define available pages, and links for use in tabs
 		$pages = array (
-			'edit'		=> "<a href=\"{$committee['path']}/{$date6}/\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Meeting details</a>",
-			'add'		=> "<a href=\"{$committee['path']}/{$date6}/add.html\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Add document(s)</a>",
-			'delete'	=> "<a" . (!$meeting['documents'] ? ' class="empty"' : '') . " href=\"{$committee['path']}/{$date6}/delete.html\"><img src=\"/images/icons/page_delete.png\" class=\"icon\" /> Delete document(s)</a>",
+			'edit'		=> "<a href=\"{$this->committee['path']}/{$date6}/\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Meeting details</a>",
+			'add'		=> "<a href=\"{$this->committee['path']}/{$date6}/add.html\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Add document(s)</a>",
+			'delete'	=> "<a" . (!$meeting['documents'] ? ' class="empty"' : '') . " href=\"{$this->committee['path']}/{$date6}/delete.html\"><img src=\"/images/icons/page_delete.png\" class=\"icon\" /> Delete document(s)</a>",
 		);
 		
 		# Validate action
@@ -819,14 +817,14 @@ class committeeListings extends frontControllerApplication
 		$page = $_GET['page'];
 		
 		# Page description
-		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$committee['path']}/\">" . htmlspecialchars ($committee['name']) . '</a> &raquo; ' . date ('l ' . $this->dateFormatBasic, strtotime ($meeting['date'])) . '</h2>';
+		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$this->committee['path']}/\">" . htmlspecialchars ($this->committee['name']) . '</a> &raquo; ' . date ('l ' . $this->dateFormatBasic, strtotime ($meeting['date'])) . '</h2>';
 		
 		# Add tabs
 		$html .= application::htmlUl ($pages, 0, 'tabs', true, false, false, false, $page);
 		
 		# Run the page
 		$method = 'meeting' . ucfirst ($page);
-		$html .= $this->{$method} ($committee, $meeting, $date6, $meetings);
+		$html .= $this->{$method} ($this->committee, $meeting, $date6, $meetings);
 		
 		# Show the HTML
 		echo $html;
@@ -1107,10 +1105,8 @@ class committeeListings extends frontControllerApplication
 	# Function to serve a document
 	public function document ($file)
 	{
-		$committee = $this->committees[$this->committeeId];
-		
 		# Ensure the user has viewing rights
-		if (!$committee['viewingRights']) {
+		if (!$this->committee['viewingRights']) {
 			$html  = "\n<p>This committee is only visible to staff.</p>";
 			$html .= "\n<p>If you think you should have access, please <a href=\"{$this->baseUrl}/feedback.html\">contact us</a>.</p>";
 			echo $html;
@@ -1169,7 +1165,7 @@ class committeeListings extends frontControllerApplication
 			if (substr_count ($committee['path'], 'http://')) {continue;}
 			
 			# Title
-			echo "<h3>{$committee['name']}</h3>";
+			echo "\n<h3>{$committee['name']}</h3>";
 			
 			# Load the HTML
 			$oldPage = $_SERVER['DOCUMENT_ROOT'] . str_replace ('/committees2', '/committees', $committee['path']) . '/index.html';
