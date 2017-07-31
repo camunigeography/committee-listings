@@ -113,6 +113,7 @@ class committeeListings extends frontControllerApplication
 			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
 			  `prefixFilename` VARCHAR(255) NOT NULL COLLATE utf8_unicode_ci COMMENT 'Document prefix'
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
+			  `staffOnly` INT(1) NULL DEFAULT NULL COMMENT 'Staff only?',
 			  `managers` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Managers (usernames, one per line)',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
@@ -270,10 +271,13 @@ class committeeListings extends frontControllerApplication
 				$listingHtml .= "\n<h2>" . htmlspecialchars ($type) . '</h2>';
 			}
 			
+			# Define a marker for indicating that an area is staff only
+			$restrictionMarkerHtml = " <img src=\"/images/icons/shield.png\" border=\"0\" class=\"restricted\" title=\"Staff-only area\" />";
+			
 			# Create the list for this type
 			$list = array ();
 			foreach ($committees as $moniker => $committee) {
-				$list[] = "<a href=\"{$committee['path']}/\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . ($committee['spaceAfter'] ? ' class="spaced"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>';
+				$list[] = "<a href=\"{$committee['path']}/\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . ($committee['spaceAfter'] ? ' class="spaced"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>' . ($committee['staffOnly'] ? $restrictionMarkerHtml : '');
 			}
 			$listingHtml .= application::htmlUl ($list);
 		}
