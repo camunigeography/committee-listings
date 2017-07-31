@@ -5,10 +5,34 @@ $settings = array (
 	'hostname' => 'localhost',
 	'username' => 'the_username',
 	'password' => 'the_password',
+	'getStaffFunction' => 'getStaffUpstream',
 );
 
 # Load and run the committee listings class
 require_once ('committee-listings/committeeListings.php');
 new committeeListings ($settings);
+
+
+# Define the users callback function
+function getStaffUpstream ()
+{
+	/*	
+		Must return a datastructure like this:
+		
+		return array (
+		    ['spqr1'] => array (
+		            ['username'] => 'spqr1',
+		            ['forename'] => 'Sam',
+		            ['surname'] => 'Right'
+		        ),
+		    ['xyz123'] => array (
+		            ['username'] => 'xyz123',
+		            ['forename'] => 'Xavier',
+		            ['surname'] => 'Yu'
+		        ),
+			...
+		);
+	*/
+}
 
 ?>

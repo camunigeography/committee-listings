@@ -23,6 +23,7 @@ class committeeListings extends frontControllerApplication
 			'paperUploadSlots' => 5,
 			'usersAutocomplete' => false,
 			'itemCaseSensitive' => true,
+			'getStaffFunction' => false,
 		);
 		
 		# Return the defaults
@@ -155,7 +156,12 @@ class committeeListings extends frontControllerApplication
 	public function mainPreActions ()
 	{
 		# Get the Committees
-		$this->committees = $this->getCommittees ();
+		if (!$this->committees = $this->getCommittees ($errorHtml)) {
+			$html = $errorHtml;
+			#!# Mail error
+			echo $html;
+			return false;
+		}
 		
 		# Determine selected committee, if any, rejecting invalid values
 		$this->committee = false;
@@ -210,7 +216,7 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to get the Committees
-	private function getCommittees ()
+	private function getCommittees (&$errorHtml = false)
 	{
 		# Get the data
 		$query = '
@@ -233,6 +239,19 @@ class committeeListings extends frontControllerApplication
 		foreach ($data as $moniker => $committee) {
 			$managersList = (trim ($committee['managers']) ? explode (', ', $committee['managers']) : array ());
 			$data[$moniker]['editRights'] = ($this->user && ($this->userIsAdministrator || in_array ($this->user, $managersList)));
+		}
+		
+		# If any committee is staff-only, ensure a data function is defined and callable, and obtain the staff data
+		$staff = array ();
+		foreach ($data as $moniker => $committee) {
+			if ($committee['staffOnly']) {
+				if (!$this->settings['getStaffFunction'] || !is_callable ($this->settings['getStaffFunction'])) {
+					$errorHtml = "\n<p class=\"warning\"><strong>Error:</strong> This web application is not correctly set up. A section is marked staff-only but no staff data source has been defined. The Webmaster needs to correct this problem.</p>";
+					return false;
+				}
+				$staff = $this->settings['getStaffFunction'] ();
+				break;
+			}
 		}
 		
 		# Return the data
