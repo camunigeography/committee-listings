@@ -60,7 +60,7 @@ class committeeListings extends frontControllerApplication
 				'usetab' => 'home',
 				'authentication' => $this->requireLogin,
 			),
-			'serve' => array (
+			'document' => array (
 				'description' => false,
 				'url' => false,
 				'authentication' => $this->requireLogin,
@@ -1112,8 +1112,8 @@ class committeeListings extends frontControllerApplication
 	}
 	
 	
-	# File serving
-	public function serve ($file)
+	# Function to serve a document
+	public function document ($file)
 	{
 		# Ensure the committee is specified
 		if (!$this->committee) {
