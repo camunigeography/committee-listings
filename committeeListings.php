@@ -58,6 +58,12 @@ class committeeListings extends frontControllerApplication
 				'description' => false,
 				'url' => '%1/',
 				'usetab' => 'home',
+				'authentication' => $this->requireLogin,
+			),
+			'serve' => array (
+				'description' => false,
+				'url' => false,
+				'authentication' => $this->requireLogin,
 			),
 			'edit' => array (
 				'description' => false,
@@ -90,10 +96,6 @@ class committeeListings extends frontControllerApplication
 				'subtab' => 'Import',
 				'parent' => 'admin',
 				'administrator' => true,
-			),
-			'serve' => array (
-				'description' => false,
-				'url' => false,
 			),
 		);
 		
@@ -180,6 +182,13 @@ class committeeListings extends frontControllerApplication
 		# Customise page title to committee if specified
 		if ($this->committee) {
 			$this->settings['applicationName'] = $this->committees[$this->committee]['name'];
+		}
+		
+		# If within a particular committee, set to require login if required
+		if ($this->committee) {
+			if ($this->committees[$this->committee]['staffOnly']) {
+				$this->requireLogin = true;
+			}
 		}
 		
 	}
