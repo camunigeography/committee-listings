@@ -207,7 +207,7 @@ class committeeListings extends frontControllerApplication
 	public function guiSearchBox ()
 	{
 		# End if not enabled
-		$enableActions = array ('home', 'committee');
+		$enableActions = array ('home', 'committee', 'edit', 'add', 'meeting');
 		if (!in_array ($this->action, $enableActions)) {return false;}
 		
 		# Create the droplist
@@ -219,8 +219,11 @@ class committeeListings extends frontControllerApplication
 			$droplist[$url] = (mb_strlen ($committee['name']) > $truncateTo ? mb_substr ($committee['name'], 0, $truncateTo) . chr(0xe2).chr(0x80).chr(0xa6) : $committee['name']);
 		}
 		
+		# Define the current committee
+		$selected = $this->baseUrl . '/' . $this->committee . '/';
+		
 		# Compile the HTML
-		$html = pureContent::htmlJumplist ($droplist, $selected = $_SERVER['SCRIPT_NAME'], '', 'jumplist', 0, $class = 'jumplist ultimateform');
+		$html = pureContent::htmlJumplist ($droplist, $selected, '', 'jumplist', 0, $class = 'jumplist ultimateform');
 		
 		# Return the HTML
 		return $html;
