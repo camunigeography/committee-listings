@@ -53,7 +53,7 @@ class committeeListings extends frontControllerApplication
 				'tab' => 'Members',
 				'icon' => 'status_online',
 			),
-			'show' => array (
+			'committee' => array (
 				'description' => false,
 				'url' => '%1/',
 				'usetab' => 'home',
@@ -189,7 +189,7 @@ class committeeListings extends frontControllerApplication
 	public function guiSearchBox ()
 	{
 		# End if not enabled
-		$enableActions = array ('home', 'show');
+		$enableActions = array ('home', 'committee');
 		if (!in_array ($this->action, $enableActions)) {return false;}
 		
 		# Create the droplist
@@ -375,7 +375,7 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Committee page
-	public function show ()
+	public function committee ()
 	{
 		# Ensure the committee is specified
 		if (!$this->committee) {

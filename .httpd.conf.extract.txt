@@ -23,7 +23,7 @@
 	RedirectMatch permanent ^$applicationBaseUrl/(schedule|membership)$ $applicationBaseUrl/$1/
 	RewriteRule ^$applicationBaseUrl/(import)/$ $applicationBaseUrl/index.html?action=$1 [L]
 	RedirectMatch permanent ^$applicationBaseUrl/(import)$ $applicationBaseUrl/$1/
-	RewriteRule ^$applicationBaseUrl/([a-z]+)/$ $applicationBaseUrl/index.html?action=show&committee=$1 [L]
+	RewriteRule ^$applicationBaseUrl/([a-z]+)/$ $applicationBaseUrl/index.html?action=committee&committee=$1 [L]
 	RedirectMatch permanent ^$applicationBaseUrl/([a-z]+)$ $applicationBaseUrl/$1/
 	RewriteRule ^$applicationBaseUrl/([a-z]+)/(edit|add).html$ $applicationBaseUrl/index.html?action=$2&committee=$1 [L]
 	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/$ $applicationBaseUrl/index.html?action=meeting&committee=$1&date6=$2&page=edit [L]
