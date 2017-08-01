@@ -423,6 +423,9 @@ class committeeListings extends frontControllerApplication
 		# Construct the HTML, looping through each Committee and list the members
 		$html .= $this->settings['membershipIntroductionHtml'];
 		foreach ($this->committees as $moniker => $committee) {
+			if ($committee['editRights']) {
+				$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$committee['path']}/edit.html#members\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit membership</a></p>";
+			}
 			$html .= "\n<h2>" . "<a href=\"{$committee['path']}/\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a></h2>';
 			$html .= $committee['membersHtml'];
 		}
@@ -721,6 +724,7 @@ class committeeListings extends frontControllerApplication
 				'moniker' => array ('editable' => false, ),
 				'prefixFilename' => array ('editable' => false, ),
 				'managers' => array ('expandable' => ',', 'autocomplete' => $this->settings['usersAutocomplete'] , 'autocompleteOptions' => array ('delay' => 0), ),
+				'membersHtml' => array ('title' => '<span id="members">Members</span>'),
 			),
 		));
 		if ($result = $form->process ($html)) {
