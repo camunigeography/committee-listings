@@ -14,3 +14,6 @@
 #committeelistings ul.tabs li a.empty {opacity: 0.6;}
 
 #committeelistings img.restricted {opacity: 0.6;}
+
+#committeelistings #cornersearch {margin-bottom: 0;}
+#committeelistings h2 {padding-bottom: 10px;}
