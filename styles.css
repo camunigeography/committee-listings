@@ -1,4 +1,5 @@
-#committeelistings ul li a.spaced {margin-bottom: 1em; display: block;}
+#committeelistings ul.index li {margin-bottom: 0.2em;}
+#committeelistings ul.index li span.spaced {margin-bottom: 1.2em; display: block;}
 
 #committeelistings #cornersearch {position: relative; top: -12px; right: 0;}
 #committeelistings #editlink {clear: right; position: relative; top: -10px;}

@@ -335,9 +335,9 @@ class committeeListings extends frontControllerApplication
 			# Create the list for this type
 			$list = array ();
 			foreach ($committees as $moniker => $committee) {
-				$list[] = "<a href=\"{$committee['path']}/\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . ($committee['spaceAfter'] ? ' class="spaced"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>' . ($committee['staffOnly'] ? $restrictionMarkerHtml : '');
+				$list[] = ($committee['spaceAfter'] ? '<span class="spaced">' : '') . "<a href=\"{$committee['path']}/\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>' . ($committee['staffOnly'] ? $restrictionMarkerHtml : '') . ($committee['spaceAfter'] ? '</span>' : '');
 			}
-			$listingHtml .= application::htmlUl ($list);
+			$listingHtml .= application::htmlUl ($list, 2, 'index');
 		}
 		
 		# Compile the HTML
