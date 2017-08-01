@@ -124,7 +124,7 @@ class committeeListings extends frontControllerApplication
 			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
 			  `prefixFilename` VARCHAR(255) NOT NULL COLLATE utf8_unicode_ci COMMENT 'Document prefix'
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
-			  `staffOnly` INT(1) NULL DEFAULT NULL COMMENT 'Staff only?',
+			  `staffOnly` INT(1) NULL DEFAULT NULL COMMENT 'Confidential to staff only?',
 			  `managers` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Managers (usernames, one per line)',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
