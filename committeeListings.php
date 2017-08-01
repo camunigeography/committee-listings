@@ -629,7 +629,7 @@ class committeeListings extends frontControllerApplication
 			
 			# Register the entry
 			$table[$date6] = array (
-				'date'		=> "<a id=\"meeting{$date6}\"></a>" . $date,
+				'date'		=> "<span id=\"meeting{$date6}\">" . $date . '</span>',
 				'agenda'	=> $agenda,
 				'minutes'	=> $minutes,
 			);
