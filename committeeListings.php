@@ -497,6 +497,12 @@ class committeeListings extends frontControllerApplication
 			}
 		}
 		
+		# Determine if the date is in the future
+		$today = date ('Y-m-d');
+		foreach ($meetings as $date6 => $meeting) {
+			$meetings[$date6]['dateIsFuture'] = ($meeting['date'] > $today);
+		}
+		
 		# Return the data
 		return $meetings;
 	}
@@ -593,10 +599,9 @@ class committeeListings extends frontControllerApplication
 		foreach ($meetings as $date6 => $meeting) {
 			
 			# Date
-			$dateIsFuture = ($meeting['date'] > date ('Y-m-d'));
-			$dateFormat = ($dateIsFuture ? 'l ' : '') . $this->dateFormatBasic;
+			$dateFormat = ($meeting['dateIsFuture'] ? 'l ' : '') . $this->dateFormatBasic;
 			$date  = date ($dateFormat, strtotime ($meeting['date']));
-			if ($dateIsFuture) {
+			if ($meeting['dateIsFuture']) {
 				if ($meeting['time'] || $meeting['location']) {
 					$date .= "<br />\n";
 				}
