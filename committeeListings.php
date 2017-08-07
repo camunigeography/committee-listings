@@ -128,6 +128,7 @@ class committeeListings extends frontControllerApplication
 			  `managers` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Managers (usernames, one per line)',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
+			  `minutesAreNotes` INT(1) NULL COMMENT \"Minutes are 'notes'?\",
 			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
 			  `membersHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Members',
 			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Meetings (clarification text)',
@@ -1012,10 +1013,14 @@ class committeeListings extends frontControllerApplication
 		# Start the HTML
 		$html = "\n<h3>Add document(s)</h3>";
 		
+		# Determine document type - normally 'minutes' but may be notes
+		$minutesType = ($committee['minutesAreNotes'] ? 'notes' : 'minutes');
+		
 		# Determine filenames
 		$filenames = array (
 			'agenda' => $committee['prefixFilename'] . $date6 . 'Agenda',
 			'minutes' => $committee['prefixFilename'] . $date6 . 'Minutes',
+			'notes' => $committee['prefixFilename'] . $date6 . 'Notes',
 		);
 		
 		# Create the upload form
@@ -1038,16 +1043,16 @@ class committeeListings extends frontControllerApplication
 				'forcedFileName'	=> $filenames['agenda'],
 			));
 		}
-		$form->heading (4, 'Minutes:');
-		if ($meeting['minutes']) {
-			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting['minutes']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing minutes file</a>. Please <a href=\"{$committee['path']}/{$date6}/delete.html\">delete it on the deletion page first</a> if you wish to add a new version.</p>");
+		$form->heading (4, ucfirst ($minutesType) . ':');
+		if ($meeting[$minutesType]) {
+			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting[$minutesType]}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing {$minutesType} file</a>. Please <a href=\"{$committee['path']}/{$date6}/delete.html\">delete it on the deletion page first</a> if you wish to add a new version.</p>");
 		} else {
 			$form->upload (array (
-				'name'				=> 'minutes',
-				'title'				=> 'Minutes',
+				'name'				=> $minutesType,
+				'title'				=> ucfirst ($minutesType),
 				'allowedExtensions'	=> array ('pdf', 'doc', 'docx'),
 				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
-				'forcedFileName'	=> $filenames['minutes'],
+				'forcedFileName'	=> $filenames[$minutesType],
 			));
 		}
 		$form->heading (4, 'Add additional papers under agenda:');
@@ -1100,6 +1105,9 @@ class committeeListings extends frontControllerApplication
 		}
 		if ($meeting['minutes']) {
 			$files[$meeting['minutes']] = 'Minutes';
+		}
+		if ($meeting['notes']) {
+			$files[$meeting['notes']] = 'Notes';
 		}
 		
 		# Create the deletion form
