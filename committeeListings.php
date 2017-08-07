@@ -594,6 +594,16 @@ class committeeListings extends frontControllerApplication
 			return $html;
 		}
 		
+		# Obtain the next forthcoming meeting in the future, if any
+		$nextMeeting = false;
+		foreach ($meetings as $date6 => $meeting) {
+			if ($meeting['dateIsFuture']) {
+				$nextMeeting = $date6;
+			} else {
+				break;	// Retain value if found
+			}
+		}
+		
 		# Compile the table data
 		$table = array ();
 		foreach ($meetings as $date6 => $meeting) {
@@ -655,9 +665,12 @@ class committeeListings extends frontControllerApplication
 				}
 			}
 			
+			# Determine if the meeting date is further ahead (i.e. future but not next meeting)
+			$furtherAhead = ($meeting['dateIsFuture'] && ($date6 != $nextMeeting));
+			
 			# Register the entry
 			$table[$date6] = array (
-				'date'		=> "<span id=\"meeting{$date6}\">" . $date . '</span>',
+				'date'		=> "<span id=\"meeting{$date6}\"" . ($furtherAhead ? ' class="future"' : '') . '>' . $date . '</span>',
 				'agenda'	=> $agenda,
 				'minutes'	=> $minutes,
 			);
