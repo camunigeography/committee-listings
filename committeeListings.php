@@ -283,11 +283,14 @@ class committeeListings extends frontControllerApplication
 			}
 		}
 		
+		# Determine whether the user is staff; if no staff function is defined, there will be no staff, so this will safely return false
+		$userIsStaff = ($this->user && isSet ($staff[$this->user]));
+		
 		# Add whether the user has viewing rights; in staff-only areas, a user must be logged in (which is also checked later in mainPreActions) and be in the staff list
 		foreach ($data as $moniker => $committee) {
 			$data[$moniker]['viewingRights'] = true;
 			if ($committee['staffOnly']) {
-				if (!$this->user || !isSet ($staff[$this->user])) {
+				if (!$userIsStaff) {
 					$data[$moniker]['viewingRights'] = false;
 				}
 			}
@@ -438,7 +441,6 @@ class committeeListings extends frontControllerApplication
 	# Committee page
 	public function committee ()
 	{
-
 		# Ensure the user has viewing rights
 		if (!$this->committee['viewingRights']) {
 			$html  = "\n<p>This committee is only visible to staff.</p>";
