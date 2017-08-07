@@ -1128,7 +1128,7 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# Construct the file path
-		$file = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/' . $this->committeeId . '/' . $file;
+		$file = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/' . $this->committeeId . $file;
 		
 		# Ensure the file exists
 		if (!is_file ($file)) {

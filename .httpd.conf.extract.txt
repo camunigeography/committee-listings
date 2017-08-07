@@ -31,6 +31,6 @@
 	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/(add|delete).html$ $applicationBaseUrl/index.html?action=meeting&committee=$1&date6=$2&page=$3 [L]
 	
 	# Require all file access to be served via the web application rather than directly
-	RewriteRule ^$applicationBaseUrl/([^/]+)/(.+)\.(pdf|doc|docx|xls|xlsx)(.*)$ $applicationBaseUrl/index.html?action=document&committee=$1&item=$2.$3$4 [L]
+	RewriteRule ^$applicationBaseUrl/([^/]+)(/(.+)\.(pdf|doc|docx|xls|xlsx)(.*))$ $applicationBaseUrl/index.html?action=document&committee=$1&item=$2 [L]
 	
 </Macro>
