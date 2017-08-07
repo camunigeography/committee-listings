@@ -1345,7 +1345,7 @@ class committeeListings extends frontControllerApplication
 		// application::dumpData ($meetings);
 		
 		# Insert the data, replacing all existing data
-		$this->databaseConnection->truncate ($this->settings['database'], $this->settings['table'], true);
+		$this->databaseConnection->truncate ($this->settings['database'], $this->settings['table']);
 		$this->databaseConnection->insertMany ($this->settings['database'], $this->settings['table'], $meetings, 100);
 		application::dumpData ($this->databaseConnection->error ());
 	}
