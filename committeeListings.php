@@ -284,13 +284,13 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# Determine whether the user is staff; if no staff function is defined, there will be no staff, so this will safely return false
-		$userIsStaff = ($this->user && isSet ($staff[$this->user]));
+		$this->userIsStaff = ($this->user && isSet ($staff[$this->user]));
 		
 		# Add whether the user has viewing rights; in staff-only areas, a user must be logged in (which is also checked later in mainPreActions) and be in the staff list
 		foreach ($data as $moniker => $committee) {
 			$data[$moniker]['viewingRights'] = true;
 			if ($committee['staffOnly']) {
-				if (!$userIsStaff) {
+				if (!$this->userIsStaff) {
 					$data[$moniker]['viewingRights'] = false;
 				}
 			}
@@ -528,6 +528,17 @@ class committeeListings extends frontControllerApplication
 			$files[$date6]['documents'][] = $path;	// All documents
 		}
 		
+		# Limit reserved documents to staff, present in a /reserved/ folder, by removing them from the listing if not staff
+		if (!$this->userIsStaff) {
+			foreach ($files as $date6 => $papers) {
+				foreach ($papers['documents'] as $index => $path) {
+					if ($this->isReservedDocument ($path)) {
+						unset ($files[$date6]['documents'][$index]);
+					}
+				}
+			}
+		}
+		
 		# Sort groups by date
 		ksort ($files);
 		
@@ -558,6 +569,13 @@ class committeeListings extends frontControllerApplication
 		
 		# Get the list of files
 		return $files;
+	}
+	
+	
+	# Function to determine if a document is reserved
+	private function isReservedDocument ($path)
+	{
+		return substr_count ($path, '/reserved/');
 	}
 	
 	
@@ -1109,7 +1127,7 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to serve a document
-	public function document ($file)
+	public function document ($path)
 	{
 		# Ensure the user has viewing rights
 		if (!$this->committee['viewingRights']) {
@@ -1120,15 +1138,25 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# Ensure the file path is not tampered
-		$file = str_replace ('\\', '/', $file);
-		if (substr_count ($file, '../')) {
+		$path = str_replace ('\\', '/', $path);
+		if (substr_count ($path, '../')) {
 			$html = $this->page404 ();
 			echo $html;
 			return false;
 		}
 		
+		# Deny access to reserved documents if staff
+		if (!$this->userIsStaff) {
+			if ($this->isReservedDocument ($path)) {
+				$html  = "\n<p>This document is only visible to staff.</p>";
+				$html .= "\n<p>If you think you should have access, please <a href=\"{$this->baseUrl}/feedback.html\">contact us</a>.</p>";
+				echo $html;
+				return false;
+			}
+		}
+		
 		# Construct the file path
-		$file = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/' . $this->committeeId . $file;
+		$file = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/' . $this->committeeId . $path;
 		
 		# Ensure the file exists
 		if (!is_file ($file)) {
