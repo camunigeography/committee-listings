@@ -490,7 +490,7 @@ class committeeListings extends frontControllerApplication
 		$files = $this->getFiles ($committee['path'] . '/');
 		
 		# Attach document metadata
-		$groupings = array ('documents', 'agenda', 'minutes', 'papers');
+		$groupings = array ('documents', 'agenda', 'minutes', 'notes', 'papers');
 		foreach ($meetings as $date6 => $meeting) {
 			foreach ($groupings as $grouping) {
 				$meetings[$date6][$grouping] = (isSet ($files[$date6]) && isSet ($files[$date6][$grouping]) ? $files[$date6][$grouping] : array ());
@@ -644,6 +644,9 @@ class committeeListings extends frontControllerApplication
 			} else {
 				if ($meeting['minutes']) {
 					$minutes .= "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>";
+				}
+				if ($meeting['notes']) {
+					$minutes .= "<a href=\"{$committee['path']}{$meeting['notes']}\">Notes</a>";
 				}
 			}
 			
