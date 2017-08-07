@@ -1332,7 +1332,7 @@ class committeeListings extends frontControllerApplication
 					'date' => trim ($date),
 					'time' => ($time ? $time : NULL),
 					'location' => ($location ? $location : NULL),
-					'note' => ($note ? $note : NULL),
+					'note' => ($note ? htmlspecialchars_decode ($note, ENT_NOQUOTES | ENT_XHTML) : NULL),
 					'rescheduledFrom' => ($rescheduledFrom ? $rescheduledFrom : NULL),
 					'isCancelled' => $isCancelled,
 				);
