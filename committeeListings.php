@@ -1247,9 +1247,11 @@ class committeeListings extends frontControllerApplication
 			# Title
 			echo "\n<h3>{$committee['name']}</h3>";
 			
-			# Load the HTML
+			# Load the HTML, handling includes
 			$oldPage = $_SERVER['DOCUMENT_ROOT'] . str_replace ('/committees2', '/committees', $committee['path']) . '/index.html';
-			$oldHtml = file_get_contents ($oldPage);
+			ob_start ();
+			include ($oldPage);
+			$oldHtml = ob_get_clean ();
 			$dom = new DOMDocument();
 			$dom->loadHTML ($oldHtml);
 			/*
