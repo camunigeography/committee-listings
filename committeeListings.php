@@ -122,13 +122,14 @@ class committeeListings extends frontControllerApplication
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
 			  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name',
 			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
-			  `prefixFilename` VARCHAR(255) NOT NULL COLLATE utf8_unicode_ci COMMENT 'Document prefix'
+			  `prefixFilename` VARCHAR(255) NOT NULL COLLATE utf8_unicode_ci COMMENT 'Document prefix',
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
 			  `staffOnly` INT(1) NULL DEFAULT NULL COMMENT 'Confidential to staff only?',
 			  `managers` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Managers (usernames, one per line)',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
-			  `minutesAreNotes` INT(1) NULL COMMENT \"Minutes are 'notes'?\",
+			  `minutesAreNotes` INT(1) NULL COMMENT 'Minutes are \'notes\'?',
+			  `minutesDocuments` VARCHAR(255) NULL COMMENT 'Treat as minutes documents',
 			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
 			  `membersHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Members',
 			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Meetings (clarification text)',
@@ -488,10 +489,10 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# Get the files for this committee
-		$files = $this->getFiles ($committee['path'] . '/');
+		$files = $this->getFiles ($committee['path'] . '/', $committee['minutesDocuments']);
 		
 		# Attach document metadata
-		$groupings = array ('documents', 'agenda', 'minutes', 'notes', 'papers');
+		$groupings = array ('documents', 'agenda', 'papers', 'minutes', 'notes', 'minutesDocuments');
 		foreach ($meetings as $date6 => $meeting) {
 			foreach ($groupings as $grouping) {
 				$meetings[$date6][$grouping] = (isSet ($files[$date6]) && isSet ($files[$date6][$grouping]) ? $files[$date6][$grouping] : array ());
@@ -517,7 +518,7 @@ class committeeListings extends frontControllerApplication
 	
 	
 	# Function to parse the filesystem for files for each meeting
-	private function getFiles ($folder)
+	private function getFiles ($folder, $minutesDocumentsString)
 	{
 		# Get files in the directory
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $folder;
@@ -564,6 +565,14 @@ class committeeListings extends frontControllerApplication
 							$files[$date6][$grouping] = $path;
 							continue 2;		// Found, so continue to next file
 						}
+					}
+				}
+				
+				# If minutes documents (i.e. additional documents that relate to minutes, rather than agendas, with a specific filename string present) are enabled for this committee, put in that grouping
+				if ($minutesDocumentsString) {
+					if (substr_count ($path, $minutesDocumentsString)) {
+						$files[$date6]['minutesDocuments'][] = $path;
+						continue;
 					}
 				}
 				
@@ -653,17 +662,25 @@ class committeeListings extends frontControllerApplication
 				$agenda .= $this->additionalPapersListing ($meeting['papers'], $committee['path']);
 			}
 			
-			# Minutes
+			# Minutes (sometimes labelled as 'notes')
 			$minutes = '';
 			if ($meeting['isCancelled']) {
 				$minutes .= '';
 			} else {
-				if ($meeting['minutes']) {
-					$minutes .= "<a href=\"{$committee['path']}{$meeting['minutes']}\">Minutes</a>";
+				$minutesType = ($committee['minutesAreNotes'] ? 'notes' : 'minutes');
+				if ($meeting[$minutesType]) {
+					$minutes .= "<a href=\"{$committee['path']}{$meeting[$minutesType]}\">" . ucfirst ($minutesType) . '</a>';
 				}
-				if ($meeting['notes']) {
-					$minutes .= "<a href=\"{$committee['path']}{$meeting['notes']}\">Notes</a>";
+				if ($meeting['minutesDocuments']) {
+					if (!$meeting[$minutesType]) {
+						$minutes .= ucfirst ($minutesType) . ' (not online at present)';
+					}
 				}
+			}
+			
+			# Minutes documents, which should be shown even if there is no minutes or if the meeting is cancelled
+			if ($meeting['minutesDocuments']) {
+				$minutes .= $this->additionalPapersListing ($meeting['minutesDocuments'], $committee['path']);
 			}
 			
 			# Determine if the meeting date is further ahead (i.e. future but not next meeting)
