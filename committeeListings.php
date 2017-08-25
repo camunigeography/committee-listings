@@ -1191,6 +1191,23 @@ class committeeListings extends frontControllerApplication
 			return false;
 		}
 		
+		# Ensure the document is registered to a meeting; this ensures that unlinked files in the filesystem cannot get served
+		$meetings = $this->getMeetings ($this->committee);
+		$registered = false;
+		foreach ($meetings as $meeting) {
+			foreach ($meeting['documents'] as $document) {
+				if ($document == $path) {
+					$registered = true;
+					break;	// Found
+				}
+			}
+		}
+		if (!$registered) {
+			$html = $this->page404 ();
+			echo $html;
+			return false;
+		}
+		
 		# Deny access to reserved documents if staff
 		if (!$this->userIsStaff) {
 			if ($this->isReservedDocument ($path)) {
