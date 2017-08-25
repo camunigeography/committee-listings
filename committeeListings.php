@@ -207,6 +207,9 @@ class committeeListings extends frontControllerApplication
 		# Set a standard date format
 		$this->dateFormatBasic = 'j<\s\u\p>S</\s\u\p> F Y';
 		
+		# Define a marker for indicating that an area is staff only
+		$this->restrictionMarkerHtml = " <img src=\"/images/icons/shield.png\" border=\"0\" class=\"restricted\" title=\"Staff-only area\" />";
+		
 		# On committee-specific pages, ensure the committee is specified
 		if (isSet ($this->actions[$this->action]['committeeSpecific'])) {
 			if (!$this->committeeId) {
@@ -334,13 +337,10 @@ class committeeListings extends frontControllerApplication
 				$listingHtml .= "\n<h2>" . htmlspecialchars ($type) . '</h2>';
 			}
 			
-			# Define a marker for indicating that an area is staff only
-			$restrictionMarkerHtml = " <img src=\"/images/icons/shield.png\" border=\"0\" class=\"restricted\" title=\"Staff-only area\" />";
-			
 			# Create the list for this type
 			$list = array ();
 			foreach ($committees as $moniker => $committee) {
-				$list[] = ($committee['spaceAfter'] ? '<span class="spaced">' : '') . "<a href=\"{$committee['path']}/\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>' . ($committee['staffOnly'] ? $restrictionMarkerHtml : '') . ($committee['spaceAfter'] ? '</span>' : '');
+				$list[] = ($committee['spaceAfter'] ? '<span class="spaced">' : '') . "<a href=\"{$committee['path']}/\"" . ($committee['isExternal'] ? ' target="_blank"' : '') . '>' . htmlspecialchars ($committee['name']) . '</a>' . ($committee['staffOnly'] ? $this->restrictionMarkerHtml : '') . ($committee['spaceAfter'] ? '</span>' : '');
 			}
 			$listingHtml .= application::htmlUl ($list, 2, 'index');
 		}
@@ -455,8 +455,7 @@ class committeeListings extends frontControllerApplication
 		$meetings = $this->getMeetings ($this->committee);
 		
 		# Construct the HTML
-		$html  = '';
-		$html .= "\n<h2>" . htmlspecialchars ($this->committee['name']) . '</h2>';
+		$html  = "\n<h2>" . htmlspecialchars ($this->committee['name']) . ($this->committee['staffOnly'] ? ' ' . $this->restrictionMarkerHtml : '') . '</h2>';
 		if ($this->committee['editRights']) {
 			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$this->committee['path']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit overview</a></p>";
 		}
