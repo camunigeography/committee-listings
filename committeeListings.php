@@ -527,11 +527,19 @@ class committeeListings extends frontControllerApplication
 		# Organise files by date, skipping additional undated folders (as files should either be in a dated folder or have a date in the filename)
 		$files = array ();
 		foreach ($filesRaw as $index => $path) {
-			if (!preg_match ('/([0-9]{6})/', $path, $matches)) {
+			
+			# Permit paths matching date6
+			// if (!preg_match ("|^/{$prefixFilename}([0-9]{6}).+$|", $path) && !preg_match ("|^/([0-9]{6})/.+$|", $path) && !preg_match ("|^/reserved/([0-9]{6})/.+$|", $path)) {	// Disabled - more restrictive matching would be problematic as prefix filename may change over time
+			if (!preg_match ('/([0-9]{6})/', $path)) {
 				// echo "<p class=\"warning\">Warning: path <tt>{$path}</tt> is undated.</p>";
 				continue;
 			}
+			
+			# Match the date
+			preg_match ('/([0-9]{6})/', $path, $matches);
 			$date6 = $matches[1];
+			
+			# Register the document
 			$files[$date6]['documents'][] = $path;	// All documents
 		}
 		
