@@ -66,6 +66,7 @@ class committeeListings extends frontControllerApplication
 				'url' => false,
 				'authentication' => $this->requireLogin,
 				'committeeSpecific' => true,
+				'export' => true,
 			),
 			'edit' => array (
 				'description' => false,
