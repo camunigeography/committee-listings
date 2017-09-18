@@ -376,7 +376,7 @@ class committeeListings extends frontControllerApplication
 			$isToday = ($meeting['date'] == $today);
 			$meetings[$id]['date'] = "<a href=\"{$meeting['path']}/#meeting{$date6}\">" . date ($this->dateFormatBasic, strtotime ($meeting['date'])) . '</a>' . ($isToday ? ' - <em>today</em>' : '');
 			$meetings[$id]['name'] = "<a href=\"{$meeting['path']}/\">" . htmlspecialchars ($meeting['name']) . '</a>';
-			$meetings[$id]['time'] = date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time']));
+			$meetings[$id]['time'] = str_replace (':00', '', date ('g:ia', strtotime ($meeting['date'] . ' ' . $meeting['time'])));
 			unset ($meetings[$id]['id']);
 			unset ($meetings[$id]['moniker']);
 			unset ($meetings[$id]['path']);
@@ -634,7 +634,7 @@ class committeeListings extends frontControllerApplication
 					$date .= "<br />\n";
 				}
 				if ($meeting['time']) {
-					$date .= date ('ga', strtotime ($meeting['date'] . ' ' . $meeting['time']));
+					$date .= str_replace (':00', '', date ('g:ia', strtotime ($meeting['date'] . ' ' . $meeting['time'])));
 				}
 				if ($meeting['location']) {
 					$date .= ($meeting['time'] ? ', ' : '') . htmlspecialchars ($meeting['location']);
