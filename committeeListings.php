@@ -877,6 +877,7 @@ class committeeListings extends frontControllerApplication
 			'edit'		=> "<a href=\"{$this->committee['path']}/{$date6}/\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Meeting details</a>",
 			'add'		=> "<a href=\"{$this->committee['path']}/{$date6}/add.html\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Add document(s)</a>",
 			'delete'	=> "<a" . (!$meeting['documents'] ? ' class="empty"' : '') . " href=\"{$this->committee['path']}/{$date6}/delete.html\"><img src=\"/images/icons/page_delete.png\" class=\"icon\" /> Delete document(s)</a>",
+			'remove'	=> "<a" . ($meeting['documents'] ? ' class="empty"' : '') . " href=\"{$this->committee['path']}/{$date6}/remove.html\"><img src=\"/images/icons/page_add.png\" class=\"icon\" /> Remove meeting</a>",
 		);
 		
 		# Validate action
@@ -1174,6 +1175,37 @@ class committeeListings extends frontControllerApplication
 		
 		# Surround with a box
 		$html = "\n<div class=\"graybox\">" . $html . "\n</div>";
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to provide a meeting deletion form
+	private function meetingRemove ($committee, $meeting, $date6)
+	{
+		# Start the HTML
+		$html = "\n<h3>Remove meeting</h3>";
+		
+		# End if any files
+		if ($meeting['documents']) {
+			$html = "\n<p>You cannot remove a meeting until all its <a href=\"{$committee['path']}/{$date6}/delete.html\">documents</a> have been deleted.</p>";
+			return $html;
+		}
+		
+		# Ask for confirmation or end
+		$message = 'Are you sure you want to remove this meeting?';
+		$confirmation = 'Yes, remove the meeting for ' . htmlspecialchars ($committee['name']) . '  on ' . strip_tags (date ('l ' . $this->dateFormatBasic, strtotime ($meeting['date'])));
+		if (!$this->areYouSure ($message, $confirmation, $html /* Passed by reference */)) {
+			return $html;
+		}
+		
+		# Delete the meeting
+		$this->databaseConnection->delete ($this->settings['database'], 'meetings', array ('id' => $meeting['id']), 1);
+		
+		# Confirmation message, resetting the HTML
+		$html .= "\n<p>{$this->tick} Meeting successfully removed.</p>";
+		$html .= "\n<p><a href=\"{$committee['path']}/\">Return to the committee page.</a></p>";
 		
 		# Return the HTML
 		return $html;

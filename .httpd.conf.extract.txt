@@ -28,7 +28,7 @@
 	RewriteRule ^$applicationBaseUrl/([a-z]+)/(edit|add).html$ $applicationBaseUrl/index.html?action=$2&committee=$1 [L]
 	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/$ $applicationBaseUrl/index.html?action=meeting&committee=$1&date6=$2&page=edit [L]
 	RedirectMatch permanent ^$applicationBaseUrl/([a-z]+)/([0-9]{6})$ $applicationBaseUrl/$1/$2/
-	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/(add|delete).html$ $applicationBaseUrl/index.html?action=meeting&committee=$1&date6=$2&page=$3 [L]
+	RewriteRule ^$applicationBaseUrl/([a-z]+)/([0-9]{6})/(add|delete|remove).html$ $applicationBaseUrl/index.html?action=meeting&committee=$1&date6=$2&page=$3 [L]
 	
 	# Require all file access to be served via the web application rather than directly
 	RewriteRule ^$applicationBaseUrl/([^/]+)(/(.+)\.(pdf|doc|docx|xls|xlsx)(.*))$ $applicationBaseUrl/index.html?action=document&committee=$1&item=$2 [L]
