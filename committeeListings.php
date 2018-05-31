@@ -1299,7 +1299,7 @@ class committeeListings extends frontControllerApplication
 		foreach ($this->committees as $committee) {
 			
 			# Skip if external
-			if (substr_count ($committee['path'], 'http://')) {continue;}
+			if (substr_count ($committee['path'], 'http://') || substr_count ($committee['path'], 'https://')) {continue;}
 			
 			# Title
 			echo "\n<h3>{$committee['name']}</h3>";
