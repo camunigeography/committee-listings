@@ -1195,7 +1195,7 @@ class committeeListings extends frontControllerApplication
 		
 		# Ask for confirmation or end
 		$message = 'Are you sure you want to remove this meeting?';
-		$confirmation = 'Yes, remove the meeting for ' . htmlspecialchars ($committee['name']) . '  on ' . strip_tags (date ('l ' . $this->dateFormatBasic, strtotime ($meeting['date'])));
+		$confirmation = 'Yes, remove the meeting for ' . $committee['name'] /* NB entities will be converted */ . '  on ' . strip_tags (date ('l ' . $this->dateFormatBasic, strtotime ($meeting['date'])));
 		if (!$this->areYouSure ($message, $confirmation, $html /* Passed by reference */)) {
 			return $html;
 		}
