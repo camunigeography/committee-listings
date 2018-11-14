@@ -272,7 +272,7 @@ class committeeListings extends frontControllerApplication
 		
 		# Convert managers list, and add whether the user has editing rights
 		foreach ($data as $moniker => $committee) {
-			$managersList = (trim ($committee['managers']) ? explode (', ', $committee['managers']) : array ());
+			$managersList = (trim ($committee['managers']) ? explode (',', $committee['managers']) : array ());
 			$data[$moniker]['editRights'] = ($this->user && ($this->userIsAdministrator || in_array ($this->user, $managersList)));
 		}
 		
