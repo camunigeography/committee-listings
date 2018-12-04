@@ -193,6 +193,7 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# If within a particular committee, set to require login if required
+		$this->requireLogin = false;
 		if ($this->committeeId) {
 			if ($this->committees[$this->committeeId]['staffOnly']) {
 				$this->requireLogin = true;
