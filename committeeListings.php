@@ -408,7 +408,9 @@ class committeeListings extends frontControllerApplication
 				meetings.location
 			FROM {$this->settings['database']}.{$this->settings['table']}
 			LEFT JOIN committees ON {$this->settings['table']}.committeeId = committees.id
-			WHERE `date` >= CAST(NOW() AS DATE)
+			WHERE
+				    `date` >= CAST(NOW() AS DATE)
+				AND isCancelled IS NULL
 			ORDER BY date, time, ordering, name
 		";
 		$data = $this->databaseConnection->getData ($query, "{$this->settings['database']}.{$this->settings['table']}");
