@@ -18,7 +18,7 @@ class committeeListings extends frontControllerApplication
 			'databaseStrictWhere' => true,
 			'administrators' => true,
 			'useEditing' => true,
-			'supportedFileTypes' => array ('pdf', 'doc', 'docx', 'xls', 'xlsx', ),
+			'supportedFileTypes' => array ('pdf', 'doc', 'docx', 'xls', 'xlsx', 'm4a', 'mp4'),
 			'uploadTypesText' => 'Agendas/minutes should ideally be in PDF format, but Word documents are also acceptable. (Excel is also permitted for additional papers.)',
 			'paperUploadSlots' => 5,
 			'usersAutocomplete' => false,
