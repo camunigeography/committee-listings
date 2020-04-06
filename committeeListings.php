@@ -1067,7 +1067,7 @@ class committeeListings extends frontControllerApplication
 			$form->upload (array (
 				'name'				=> 'agenda',
 				'title'				=> 'Agenda',
-				'allowedExtensions'	=> array ('pdf', 'doc', 'docx'),
+				'allowedExtensions'	=> $this->settings['supportedFileTypes'],
 				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
 				'forcedFileName'	=> $filenames['agenda'],
 			));
@@ -1079,7 +1079,7 @@ class committeeListings extends frontControllerApplication
 			$form->upload (array (
 				'name'				=> $minutesType,
 				'title'				=> ucfirst ($minutesType),
-				'allowedExtensions'	=> array ('pdf', 'doc', 'docx'),
+				'allowedExtensions'	=> $this->settings['supportedFileTypes'],
 				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
 				'forcedFileName'	=> $filenames[$minutesType],
 			));
