@@ -495,7 +495,7 @@ class committeeListings extends frontControllerApplication
 		$files = $this->getFiles ($committee['path'] . '/', $committee['minutesDocuments']);
 		
 		# Attach document metadata
-		$groupings = array ('documents', 'agenda', 'papers', 'minutes', 'notes', 'minutesDocuments');
+		$groupings = array ('documents', 'agenda', 'papers', 'minutes', 'notes', 'recording', 'minutesDocuments');
 		foreach ($meetings as $date6 => $meeting) {
 			foreach ($groupings as $grouping) {
 				$meetings[$date6][$grouping] = (isSet ($files[$date6]) && isSet ($files[$date6][$grouping]) ? $files[$date6][$grouping] : array ());
@@ -567,7 +567,7 @@ class committeeListings extends frontControllerApplication
 				
 				# Extract main documents (agendas and minutes), which should always be in the top level, not in a subfolder
 				if (substr_count ($path, '/') == 1) {
-					$groupings = array ('agenda', 'minutes', 'notes');
+					$groupings = array ('agenda', 'minutes', 'notes', 'recording');
 					foreach ($groupings as $grouping) {
 						
 						# Group type name is just before a dot, e.g. Staff170711Agenda.doc
@@ -692,6 +692,11 @@ class committeeListings extends frontControllerApplication
 			# Minutes documents, which should be shown even if there is no minutes or if the meeting is cancelled
 			if ($meeting['minutesDocuments']) {
 				$minutes .= $this->additionalPapersListing ($meeting['minutesDocuments'], $committee['path']);
+			}
+			
+			# Recording
+			if ($meeting['recording']) {
+				$minutes .= "<br /><a href=\"{$committee['path']}{$meeting['recording']}\">Recording</a>";
 			}
 			
 			# Determine if the meeting date is further ahead (i.e. future but not next meeting)
@@ -1047,9 +1052,10 @@ class committeeListings extends frontControllerApplication
 		
 		# Determine filenames
 		$filenames = array (
-			'agenda' => $committee['prefixFilename'] . $date6 . 'Agenda',
-			'minutes' => $committee['prefixFilename'] . $date6 . 'Minutes',
-			'notes' => $committee['prefixFilename'] . $date6 . 'Notes',
+			'agenda'	=> $committee['prefixFilename'] . $date6 . 'Agenda',
+			'minutes'	=> $committee['prefixFilename'] . $date6 . 'Minutes',
+			'notes'		=> $committee['prefixFilename'] . $date6 . 'Notes',
+			'recording'	=> $committee['prefixFilename'] . $date6 . 'Recording',
 		);
 		
 		# Start the upload form
@@ -1100,6 +1106,20 @@ class committeeListings extends frontControllerApplication
 			));
 		}
 		
+		# Recording
+		$form->heading (4, 'Recording:');
+		if ($meeting['recording']) {
+			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting['recording']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing recording file</a>. Please <a href=\"{$committee['path']}/{$date6}/delete.html\">delete it on the deletion page first</a> if you wish to add a new version.</p>");
+		} else {
+			$form->upload (array (
+				'name'				=> 'recording',
+				'title'				=> 'Recording',
+				'allowedExtensions'	=> array ('mp4', 'm4a'),
+				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
+				'forcedFileName'	=> $filenames['recording'],
+			));
+		}
+		
 		# Process the form
 		if ($result = $form->process ($html)) {
 			
@@ -1143,6 +1163,9 @@ class committeeListings extends frontControllerApplication
 		}
 		if ($meeting['notes']) {
 			$files[$meeting['notes']] = 'Notes';
+		}
+		if ($meeting['recording']) {
+			$files[$meeting['recording']] = 'Recording';
 		}
 		
 		# Create the deletion form
