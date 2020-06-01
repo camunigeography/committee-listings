@@ -1052,7 +1052,7 @@ class committeeListings extends frontControllerApplication
 			'notes' => $committee['prefixFilename'] . $date6 . 'Notes',
 		);
 		
-		# Create the upload form
+		# Start the upload form
 		$form = new form (array (
 			'div' => 'ultimateform lines horizontalonly',
 			'formCompleteText' => false,
@@ -1060,6 +1060,8 @@ class committeeListings extends frontControllerApplication
 			'unsavedDataProtection' => true,
 		));
 		$form->heading ('p', $this->settings['uploadTypesText']);
+		
+		# Agenda
 		$form->heading (4, 'Agenda:');
 		if ($meeting['agenda']) {
 			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting['agenda']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing agenda file</a>. Please <a href=\"{$committee['path']}/{$date6}/delete.html\">delete it on the deletion page first</a> if you wish to add a new version.</p>");
@@ -1072,6 +1074,19 @@ class committeeListings extends frontControllerApplication
 				'forcedFileName'	=> $filenames['agenda'],
 			));
 		}
+		
+		# Additional papers
+		$form->heading (4, 'Add additional papers under agenda:');
+		for ($i = 1; $i <= $this->settings['paperUploadSlots']; $i++) {
+			$form->upload (array (
+				'name'				=> 'papers' . $i,
+				'title'				=> "Paper ({$i})",
+				'allowedExtensions'	=> $this->settings['supportedFileTypes'],
+				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/' . $date6 . '/',
+			));
+		}
+		
+		# Minutes
 		$form->heading (4, ucfirst ($minutesType) . ':');
 		if ($meeting[$minutesType]) {
 			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting[$minutesType]}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing {$minutesType} file</a>. Please <a href=\"{$committee['path']}/{$date6}/delete.html\">delete it on the deletion page first</a> if you wish to add a new version.</p>");
@@ -1082,15 +1097,6 @@ class committeeListings extends frontControllerApplication
 				'allowedExtensions'	=> $this->settings['supportedFileTypes'],
 				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/',
 				'forcedFileName'	=> $filenames[$minutesType],
-			));
-		}
-		$form->heading (4, 'Add additional papers under agenda:');
-		for ($i = 1; $i <= $this->settings['paperUploadSlots']; $i++) {
-			$form->upload (array (
-				'name'				=> 'papers' . $i,
-				'title'				=> "Paper ({$i})",
-				'allowedExtensions'	=> $this->settings['supportedFileTypes'],
-				'directory'			=> $_SERVER['DOCUMENT_ROOT'] . $committee['path'] . '/' . $date6 . '/',
 			));
 		}
 		
