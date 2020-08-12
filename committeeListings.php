@@ -115,31 +115,31 @@ class committeeListings extends frontControllerApplication
 	{
 		return "
 			CREATE TABLE `administrators` (
-			  `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL PRIMARY KEY COMMENT 'Username',
-			  `active` enum('','Yes','No') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Yes' COMMENT 'Currently active?'
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='System administrators';
+			  `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL PRIMARY KEY COMMENT 'Username',
+			  `active` enum('','Yes','No') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Yes' COMMENT 'Currently active?'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='System administrators';
 			
 			CREATE TABLE `committees` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
-			  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name',
-			  `moniker` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL moniker',
-			  `prefixFilename` VARCHAR(255) NOT NULL COLLATE utf8_unicode_ci COMMENT 'Document prefix',
+			  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Name',
+			  `moniker` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'URL moniker',
+			  `prefixFilename` VARCHAR(255) NOT NULL COLLATE utf8mb4_unicode_ci COMMENT 'Document prefix',
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
 			  `staffOnly` INT(1) NULL DEFAULT NULL COMMENT 'Confidential to staff only?',
 			  `managers` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Managers (usernames, one per line)',
-			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
+			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
 			  `minutesAreNotes` INT(1) NULL COMMENT 'Minutes are \'notes\'?',
 			  `minutesDocuments` VARCHAR(255) NULL COMMENT 'Treat as minutes documents',
-			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
-			  `membersHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Members',
-			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT 'Meetings (clarification text)',
+			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
+			  `membersHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Members',
+			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Meetings (clarification text)',
 			  UNIQUE(`moniker`)
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committees';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Committees';
 			
 			CREATE TABLE `meetings` (
 			  `id` int(11) NOT NULL PRIMARY KEY COMMENT 'Automatic key',
-			  `committeeId` int(11) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Committee',
+			  `committeeId` int(11) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Committee',
 			  `date` date NOT NULL COMMENT 'Date',
 			  `time` time COMMENT 'Time',
 			  `location` VARCHAR(255) COMMENT 'Location',
@@ -147,20 +147,20 @@ class committeeListings extends frontControllerApplication
 			  `rescheduledFrom` DATE NULL COMMENT 'Rescheduled from date',
 			  `isCancelled` INT(1) NULL COMMENT 'Meeting cancelled?',
 			  UNIQUE KEY `committeeId_date`(`committeeId`, `date`)
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Meetings';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Meetings';
 			
 			CREATE TABLE `types` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
-			  `type` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Type',
+			  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Type',
 			  `ordering` int(1) NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)'
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Committee types (for grouping)';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Committee types (for grouping)';
 			
 			CREATE TABLE `settings` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key (ignored)',
-			  `homepageIntroductionHtml` text COLLATE utf8_unicode_ci COMMENT 'Homepage introductory content',
-			  `homepageFooterHtml` text COLLATE utf8_unicode_ci COMMENT 'Homepage footer content',
+			  `homepageIntroductionHtml` text COLLATE utf8mb4_unicode_ci COMMENT 'Homepage introductory content',
+			  `homepageFooterHtml` text COLLATE utf8mb4_unicode_ci COMMENT 'Homepage footer content',
 			  `membershipIntroductionHtml` TEXT NULL COMMENT 'Membership page introduction'
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Settings';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Settings';
 		";
 	}
 	
