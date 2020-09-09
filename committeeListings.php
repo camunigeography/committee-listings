@@ -126,11 +126,11 @@ class committeeListings extends frontControllerApplication
 			  `moniker` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'URL moniker',
 			  `prefixFilename` VARCHAR(255) NOT NULL COLLATE utf8mb4_unicode_ci COMMENT 'Document prefix',
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
-			  `staffOnly` INT(1) NULL DEFAULT NULL COMMENT 'Confidential to staff only?',
+			  `staffOnly` TINYINT NULL DEFAULT NULL COMMENT 'Confidential to staff only?',
 			  `managers` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Managers (usernames, one per line)',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
-			  `spaceAfter` INT(1) NULL COMMENT 'Add space after?',
-			  `minutesAreNotes` INT(1) NULL COMMENT 'Minutes are \'notes\'?',
+			  `spaceAfter` TINYINT NULL COMMENT 'Add space after?',
+			  `minutesAreNotes` TINYINT NULL COMMENT 'Minutes are \'notes\'?',
 			  `minutesDocuments` VARCHAR(255) NULL COMMENT 'Treat as minutes documents',
 			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
 			  `membersHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Members',
@@ -146,7 +146,7 @@ class committeeListings extends frontControllerApplication
 			  `location` VARCHAR(255) COMMENT 'Location',
 			  `note` VARCHAR(255) NULL COMMENT 'Note',
 			  `rescheduledFrom` DATE NULL COMMENT 'Rescheduled from date',
-			  `isCancelled` INT(1) NULL COMMENT 'Meeting cancelled?',
+			  `isCancelled` TINYINT NULL COMMENT 'Meeting cancelled?',
 			  UNIQUE KEY `committeeId_date`(`committeeId`, `date`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Meetings';
 			
