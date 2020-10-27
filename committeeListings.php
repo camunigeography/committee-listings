@@ -134,6 +134,7 @@ class committeeListings extends frontControllerApplication
 			  `minutesDocuments` VARCHAR(255) NULL COMMENT 'Treat as minutes documents',
 			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
 			  `membersHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Members',
+			  `termsOfReferenceHtml` TEXT NULL COMMENT 'Terms of reference',
 			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Meetings (clarification text)',
 			  UNIQUE(`moniker`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Committees';
@@ -467,6 +468,7 @@ class committeeListings extends frontControllerApplication
 		$html .= $this->committee['introductionHtml'];
 		$html .= "\n<h2>Members of the Committee</h2>";
 		$html .= $this->committee['membersHtml'];
+		$html .= $this->termsOfReference ($this->committee['termsOfReferenceHtml']);
 		$html .= "\n<h2>Meetings</h2>";
 		$html .= $this->committee['meetingsHtml'];
 		if ($this->committee['editRights']) {
@@ -518,6 +520,35 @@ class committeeListings extends frontControllerApplication
 	private function sqlDateToDate6 ($sqlDate)
 	{
 		return $date6 = preg_replace ('/^([0-9]{2})([0-9]{2})-([0-9]{2})-([0-9]{2})/', '\2\3\4', $sqlDate);
+	}
+	
+	
+	# Function to show the terms of reference
+	private function termsOfReference ($termsOfReferenceHtml)
+	{
+		# End if no terms of reference for this committee
+		$termsOfReferenceHtml = trim ($termsOfReferenceHtml);
+		if (!$termsOfReferenceHtml) {return false;}
+		
+		# Construct the HTML
+		$html  = "\n<h2>Terms of reference</h2>";
+		$html .= "\n<p id=\"showtor\"><a href=\"#termsofreference\">View the terms of reference.</a></p>";
+		$html .= "\n<div id=\"termsofreference\">";
+		$html .= "\n" . $termsOfReferenceHtml;
+		$html .= "\n</div>";
+		
+		# Add the javascript
+		$html .= "\n<script>
+			var torLink = document.getElementById ('showtor');
+			torLink.addEventListener ('click', function (e) {
+			document.getElementById ('termsofreference').style.display = 'block';
+				document.getElementById ('showtor').style.display = 'none';
+				e.preventDefault ();
+			});
+		</script>";
+		
+		# Return the HTML
+		return $html;
 	}
 	
 	
