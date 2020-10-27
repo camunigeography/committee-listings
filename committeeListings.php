@@ -245,7 +245,7 @@ class committeeListings extends frontControllerApplication
 		$selected = $this->baseUrl . '/' . ($this->committeeId ? $this->committeeId . '/' : false);
 		
 		# Compile the HTML
-		$html = pureContent::htmlJumplist ($droplist, $selected, '', 'jumplist', 0, $class = 'jumplist ultimateform');
+		$html = application::htmlJumplist ($droplist, $selected, '', 'jumplist', 0, $class = 'jumplist ultimateform');
 		
 		# Return the HTML
 		return $html;
