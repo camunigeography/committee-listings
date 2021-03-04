@@ -91,7 +91,7 @@ class committeeListings extends frontControllerApplication
 				'committeeSpecific' => true,
 			),
 			'editing' => array (
-				'description' => false,
+				'description' => 'Edit raw data',
 				'url' => 'data/',
 				'tab' => 'Data editing',
 				'icon' => 'pencil',
@@ -1503,6 +1503,7 @@ class committeeListings extends frontControllerApplication
 			'richtextEditorToolbarSet' => 'BasicLonger',
 			'richtextWidth' => 600,
 			'richtextHeight' => 200,
+			'tableCommentsInSelectionListOnly' => true,
 		);
 		
 		# Define table attributes
