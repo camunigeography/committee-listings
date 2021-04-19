@@ -145,6 +145,7 @@ class committeeListings extends frontControllerApplication
 			  `date` date NOT NULL COMMENT 'Date',
 			  `time` time COMMENT 'Time',
 			  `location` VARCHAR(255) COMMENT 'Location',
+			  `url` TEXT NULL COMMENT 'Meeting link (if online)',
 			  `note` VARCHAR(255) NULL COMMENT 'Note',
 			  `rescheduledFrom` DATE NULL COMMENT 'Rescheduled from date',
 			  `isCancelled` TINYINT NULL COMMENT 'Meeting cancelled?',
@@ -672,7 +673,8 @@ class committeeListings extends frontControllerApplication
 					$date .= str_replace (':00', '', date ('g:ia', strtotime ($meeting['date'] . ' ' . $meeting['time'])));
 				}
 				if ($meeting['location']) {
-					$date .= ($meeting['time'] ? ', ' : '') . htmlspecialchars ($meeting['location']);
+					$date .= ($meeting['time'] ? ', ' : '');
+					$date .= ($meeting['url'] ? '<a href="' . htmlspecialchars ($meeting['url']) . '" target="_blank">' : '') . htmlspecialchars ($meeting['location']) . ($meeting['url'] ? '</a>' : '');
 				}
 			}
 			if ($meeting['isCancelled']) {
@@ -990,6 +992,7 @@ class committeeListings extends frontControllerApplication
 			'data' => $meeting,
 			'attributes' => array (
 				'location' => array ('description' => 'Please avoid abbreviations.'),
+				'url' => array ('type' => 'input', 'description' => "NB Anyone who has access to this committee's page would be able to follow this link.", ),
 				'note' => array ('description' => 'This note will be public.'),
 			),
 		));
