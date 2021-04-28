@@ -774,11 +774,13 @@ class committeeListings extends frontControllerApplication
 		$truncateTo = 45;
 		$list = array ();
 		foreach ($papers as $path) {
-			$title = htmlspecialchars (pathinfo ($path, PATHINFO_FILENAME));
-			if (mb_strlen ($title) > $truncateTo) {
-				$title = mb_substr ($title, 0, $truncateTo) . '&hellip;';
+			$name = htmlspecialchars (pathinfo ($path, PATHINFO_FILENAME));
+			$tooltip = false;
+			if (mb_strlen ($name) > $truncateTo) {
+				$tooltip = $name;
+				$name = mb_substr ($name, 0, $truncateTo) . '&hellip;';
 			}
-			$list[] = "<a href=\"{$committeePath}" . htmlspecialchars (implode ('/', array_map ('rawurlencode', explode ('/', $path)))) . '">' . $title . '</a>';
+			$list[] = "<a href=\"{$committeePath}" . htmlspecialchars (implode ('/', array_map ('rawurlencode', explode ('/', $path)))) . '"' . ($tooltip ? " title=\"{$tooltip}\"" : '') . '>' . $name . '</a>';
 		}
 		
 		# Convert to HTML
