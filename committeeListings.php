@@ -780,7 +780,7 @@ class committeeListings extends frontControllerApplication
 				$tooltip = $name;
 				$name = mb_substr ($name, 0, $truncateTo) . '&hellip;';
 			}
-			$list[] = "<a href=\"{$committeePath}" . htmlspecialchars (implode ('/', array_map ('rawurlencode', explode ('/', $path)))) . '"' . ($tooltip ? " title=\"{$tooltip}\"" : '') . '>' . $name . '</a>';
+			$list[] = "<a href=\"{$committeePath}" . htmlspecialchars (implode ('/', array_map ('rawurlencode', explode ('/', str_replace ('&', '%26', $path))))) . '"' . ($tooltip ? " title=\"{$tooltip}\"" : '') . '>' . $name . '</a>';		// & needs to be double-encoded as the file gets turned by the RewriteRule into a query string parameter
 		}
 		
 		# Convert to HTML
@@ -1052,7 +1052,7 @@ class committeeListings extends frontControllerApplication
 		# Loop through each file
 		foreach ($files as $path) {
 			
-			# Detemine the old and new filenames
+			# Determine the old and new filenames
 			$newPath = str_replace ($oldDate6, $newDate6, $path);
 			$oldFile = $_SERVER['DOCUMENT_ROOT'] . $committeePath . $path;
 			$newFile = $_SERVER['DOCUMENT_ROOT'] . $committeePath . $newPath;
