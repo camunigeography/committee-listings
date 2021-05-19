@@ -936,7 +936,7 @@ class committeeListings extends frontControllerApplication
 		$html .= "\n<h2><a href=\"{$this->baseUrl}/\">Committees</a> &raquo; <a href=\"{$this->committee['path']}/\">" . htmlspecialchars ($this->committee['name']) . '</a> &raquo; ' . date ('l ' . $this->dateFormatBasic, strtotime ($meeting['date'])) . '</h2>';
 		
 		# Add tabs
-		$html .= application::htmlUl ($pages, 0, 'tabs', true, false, false, false, $page);
+		$html .= application::htmlUl ($pages, 0, $this->settings['tabUlClass'] . ' small', true, false, false, false, $page);
 		
 		# Run the page
 		$method = 'meeting' . ucfirst ($page);
