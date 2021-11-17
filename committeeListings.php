@@ -1105,7 +1105,7 @@ class committeeListings extends frontControllerApplication
 		$form->heading ('p', $this->settings['uploadTypesText']);
 		
 		# Agenda
-		$form->heading (4, 'Agenda:');
+		$form->heading (4, 'Main agenda document:');
 		if ($meeting['agenda']) {
 			$form->heading ('', "<p>There is currently an <a href=\"{$committee['path']}{$meeting['agenda']}\" target=\"_blank\" title=\"[Link opens in a new window]\">existing agenda file</a>. Please <a href=\"{$committee['path']}/{$date6}/delete.html\">delete it on the deletion page first</a> if you wish to add a new version.</p>");
 		} else {
@@ -1119,7 +1119,7 @@ class committeeListings extends frontControllerApplication
 		}
 		
 		# Additional papers
-		$form->heading (4, 'Add additional papers under agenda:');
+		$form->heading (4, 'Additional papers under agenda:');
 		for ($i = 1; $i <= $this->settings['paperUploadSlots']; $i++) {
 			$form->upload (array (
 				'name'				=> 'papers' . $i,
