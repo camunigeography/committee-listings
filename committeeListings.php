@@ -352,6 +352,9 @@ class committeeListings extends frontControllerApplication
 		
 		# Compile the HTML
 		$html  = $this->settings['homepageIntroductionHtml'];
+		if ($this->userIsAdministrator) {
+			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$this->baseUrl}/data/committees/add.html\"><img src=\"/images/icons/add.png\" class=\"icon\" /> Add committee</a></p>";
+		}
 		$html .= $listingHtml;
 		$html .= $this->settings['homepageFooterHtml'];
 		
