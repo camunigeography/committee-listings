@@ -834,12 +834,7 @@ class committeeListings extends frontControllerApplication
 			'int1ToCheckbox' => true,
 			'data' => $this->committee,
 			'simpleJoin' => true,
-			'attributes' => array (
-				'moniker' => array ('editable' => false, ),
-				'prefixFilename' => array ('editable' => false, ),
-				'managers' => array ('expandable' => ',', 'autocomplete' => $this->settings['usersAutocomplete'] , 'autocompleteOptions' => array ('delay' => 0), ),
-				'membersHtml' => array ('title' => '<span id="members">Members</span>'),
-			),
+			'attributes' => $this->committeeAttributesDatabinding ($editMode = true),
 		));
 		if ($result = $form->process ($html)) {
 			
@@ -857,6 +852,22 @@ class committeeListings extends frontControllerApplication
 		
 		# Show the HTML
 		echo $html;
+	}
+	
+	
+	# Function to defining attributes for committee form dataBinding
+	private function committeeAttributesDatabinding ($editMode = false)
+	{
+		# Define the attributes
+		$attributes = array (
+			'moniker' => array ('title' => 'Web address', 'editable' => !$editMode, ),
+			'prefixFilename' => array ('editable' => !$editMode, ),
+			'managers' => array ('expandable' => ',', 'autocomplete' => $this->settings['usersAutocomplete'] , 'autocompleteOptions' => array ('delay' => 0), ),
+			'membersHtml' => array ('title' => '<span id="members">Members</span>'),
+		);
+		
+		# Return the attributes
+		return $attributes;
 	}
 	
 	
@@ -1520,6 +1531,12 @@ class committeeListings extends frontControllerApplication
 			array ($this->settings['database'], $this->settings['table'], 'committeeId', array ('get' => 'committee')),
 			array ($this->settings['database'], 'committees', 'managers', array ('expandable' => ',', 'autocomplete' => $this->settings['usersAutocomplete'] , 'autocompleteOptions' => array ('delay' => 0), )),
 		);
+		
+		# Add attributes for committees table
+		$commmitteeAttributes = $this->committeeAttributesDatabinding ();
+		foreach ($commmitteeAttributes as $field => $fieldAttributes) {
+			$attributes[] = array ($this->settings['database'], 'committees', $field, $fieldAttributes);
+		}
 		
 		# Define tables to deny editing for
 		$deny[$this->settings['database']] = array (
