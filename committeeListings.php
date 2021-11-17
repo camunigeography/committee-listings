@@ -999,6 +999,7 @@ class committeeListings extends frontControllerApplication
 			'unsavedDataProtection' => true,
 			'div' => 'graybox ultimateform lines horizontalonly',
 			'picker' => true,
+			'autofocus' => true,
 		));
 		$form->dataBinding (array (
 			'database' => $this->settings['database'],
@@ -1516,6 +1517,7 @@ class committeeListings extends frontControllerApplication
 	{
 		# Define sinenomine settings
 		$sinenomineExtraSettings = array (
+			'autofocus' => true,
 			'int1ToCheckbox' => true,
 			'simpleJoin' => true,
 			'datePicker' => true,
