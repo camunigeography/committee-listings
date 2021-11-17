@@ -91,9 +91,9 @@ class committeeListings extends frontControllerApplication
 				'committeeSpecific' => true,
 			),
 			'editing' => array (
-				'description' => 'Edit raw data',
+				'description' => 'Committee list editing',
 				'url' => 'data/',
-				'tab' => 'Data editing',
+				'tab' => 'Edit list',
 				'icon' => 'pencil',
 				'administrator' => true,
 			),
@@ -156,7 +156,7 @@ class committeeListings extends frontControllerApplication
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
 			  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Type',
 			  `ordering` int(1) NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)'
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Committee types (for grouping)';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Committee type groups';
 			
 			CREATE TABLE `settings` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key (ignored)',
@@ -1509,6 +1509,7 @@ class committeeListings extends frontControllerApplication
 			'richtextWidth' => 600,
 			'richtextHeight' => 200,
 			'tableCommentsInSelectionListOnly' => true,
+			'truncateValues' => 100,
 		);
 		
 		# Define table attributes
@@ -1521,6 +1522,7 @@ class committeeListings extends frontControllerApplication
 		$deny[$this->settings['database']] = array (
 			'administrators',
 			'settings',
+			'meetings',
 		);
 		
 		# Hand off to the default editor, which will echo the HTML
