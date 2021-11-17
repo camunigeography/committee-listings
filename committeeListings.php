@@ -130,12 +130,12 @@ class committeeListings extends frontControllerApplication
 			  `managers` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Managers (usernames, one per line)',
 			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` TINYINT NULL COMMENT 'Add space after?',
-			  `minutesAreNotes` TINYINT NULL COMMENT 'Minutes are \'notes\'?',
-			  `minutesDocuments` VARCHAR(255) NULL COMMENT 'Treat as minutes documents',
 			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
 			  `membersHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Members',
 			  `termsOfReferenceHtml` TEXT NULL COMMENT 'Terms of reference',
-			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Meetings (clarification text)',
+			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Meetings section clarification text (usually blank)',
+			  `minutesAreNotes` TINYINT NULL COMMENT 'Minutes are \'notes\' (rather than actual minutes)?',
+			  `minutesDocuments` VARCHAR(255) NULL COMMENT 'Treat as minutes documents',
 			  UNIQUE(`moniker`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Committees';
 			
@@ -467,7 +467,7 @@ class committeeListings extends frontControllerApplication
 		# Construct the HTML
 		$html  = "\n<h2>" . htmlspecialchars ($this->committee['name']) . ($this->committee['staffOnly'] ? ' ' . $this->restrictionMarkerHtml : '') . '</h2>';
 		if ($this->committee['editRights']) {
-			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$this->committee['path']}/edit.html\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit overview</a></p>";
+			$html .= "<p class=\"actions right\" id=\"editlink\"><a href=\"{$this->committee['path']}/edit.html#about\"><img src=\"/images/icons/pencil.png\" class=\"icon\" /> Edit overview</a></p>";
 		}
 		$html .= $this->committee['introductionHtml'];
 		$html .= "\n<h2>Members of the Committee</h2>";
@@ -860,10 +860,14 @@ class committeeListings extends frontControllerApplication
 	{
 		# Define the attributes
 		$attributes = array (
-			'moniker' => array ('title' => 'Web address', 'editable' => !$editMode, ),
+			'moniker' => array ('title' => 'Web address', 'prepend' => $this->baseUrl . '/<strong>', 'append' => '</strong>/', 'editable' => !$editMode, ),
 			'prefixFilename' => array ('editable' => !$editMode, ),
 			'managers' => array ('expandable' => ',', 'autocomplete' => $this->settings['usersAutocomplete'] , 'autocompleteOptions' => array ('delay' => 0), ),
 			'membersHtml' => array ('title' => '<span id="members">Members</span>'),
+			'name' => array ('heading' => array (3 => 'Main committee details'), ),
+			'ordering' => array ('heading' => array (3 => 'Ordering in committee list'), ),
+			'minutesAreNotes' => array ('heading' => array (3 => 'Miscellaneous settings'), ),
+			'introductionHtml' => array ('heading' => array (3 => '<a name="about"></a>About texts'), ),
 		);
 		
 		# Return the attributes
