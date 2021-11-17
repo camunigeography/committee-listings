@@ -21,6 +21,7 @@ class committeeListings extends frontControllerApplication
 			'useEditing' => true,
 			'supportedFileTypes' => array ('pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'm4a', 'mp4'),
 			'uploadTypesText' => 'Agendas/minutes should ideally be in PDF format, but Word documents are also acceptable. (You can also upload other files like Powerpoint, Excel, MP4 video.)',
+			'paperUploadSlots' => 10,
 			'usersAutocomplete' => false,
 			'itemCaseSensitive' => true,
 			'getStaffFunction' => false,
