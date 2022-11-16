@@ -668,7 +668,8 @@ class committeeListings extends frontControllerApplication
 			# Date
 			$dateFormat = ($meeting['dateIsFuture'] ? 'l ' : '') . $this->dateFormatBasic;
 			$date  = date ($dateFormat, strtotime ($meeting['date']));
-			if ($meeting['dateIsFuture']) {
+			$today = date ('Y-m-d');
+			if (($meeting['date'] == $today) || $meeting['dateIsFuture']) {
 				if ($meeting['time'] || $meeting['location']) {
 					$date .= "<br />\n";
 				}
