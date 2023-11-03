@@ -1337,7 +1337,7 @@ class committeeListings extends frontControllerApplication
 			return false;
 		}
 		
-		# Deny access to reserved documents if staff
+		# Deny access to reserved documents if not staff
 		if (!$this->userIsStaff) {
 			if ($this->isReservedDocument ($path)) {
 				$html  = "\n<p>This document is only visible to staff.</p>";
