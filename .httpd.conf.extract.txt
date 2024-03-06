@@ -4,14 +4,10 @@
 #   
 #   # Committee listings system
 #   Include /path/to/committee-listings/.httpd.conf.extract.txt
-#   Use MacroCommitteeListings "/committees" "/path/to/committee-listings/:/path/to/php/libraries/"
+#   Use MacroCommitteeListings "/committees"
 
 
-<Macro MacroCommitteeListings $applicationBaseUrl $includePath>
-	
-	<Location $applicationBaseUrl>
-		php_value include_path "$includePath"
-	</Location>
+<Macro MacroCommitteeListings $applicationBaseUrl>
 	
 	Use MacroFrontControllerApplication "$applicationBaseUrl/" "Committee listings"
 	

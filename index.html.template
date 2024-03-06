@@ -9,7 +9,7 @@ $settings = array (
 );
 
 # Load and run the committee listings class
-require_once ('committee-listings/committeeListings.php');
+require_once ('vendor/autoload.php');
 new committeeListings ($settings);
 
 

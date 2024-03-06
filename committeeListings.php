@@ -3,7 +3,6 @@
 # Class to create a committee listings system
 
 
-require_once ('frontControllerApplication.php');
 class committeeListings extends frontControllerApplication
 {
 	# Function to assign defaults additional to the general application defaults
@@ -561,7 +560,6 @@ class committeeListings extends frontControllerApplication
 	{
 		# Get files in the directory
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $folder;
-		require_once ('directories.php');
 		$filesRaw = directories::flattenedFileListing ($directory, $this->settings['supportedFileTypes'], $includeRoot = false);
 		
 		# Organise files by date, skipping additional undated folders (as files should either be in a dated folder or have a date in the filename)
