@@ -162,7 +162,7 @@ class committeeListings extends frontControllerApplication
 			  `homepageIntroductionHtml` text COMMENT 'Homepage introductory content',
 			  `homepageFooterHtml` text COMMENT 'Homepage footer content',
 			  `membershipIntroductionHtml` TEXT NULL COMMENT 'Membership page introduction'
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Settings';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Settings';
 		";
 	}
 	
