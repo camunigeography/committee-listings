@@ -115,24 +115,24 @@ class committeeListings extends frontControllerApplication
 	{
 		return "
 			CREATE TABLE `administrators` (
-			  `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL PRIMARY KEY COMMENT 'Username',
-			  `active` enum('','Yes','No') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Yes' COMMENT 'Currently active?'
+			  `username` varchar(255) NOT NULL PRIMARY KEY COMMENT 'Username',
+			  `active` enum('','Yes','No') NOT NULL DEFAULT 'Yes' COMMENT 'Currently active?'
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='System administrators';
 			
 			CREATE TABLE `committees` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
-			  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Name',
-			  `moniker` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'URL moniker',
-			  `prefixFilename` VARCHAR(255) NOT NULL COLLATE utf8mb4_unicode_ci COMMENT 'Document prefix',
+			  `name` varchar(255) NOT NULL COMMENT 'Name',
+			  `moniker` varchar(255) NOT NULL COMMENT 'URL moniker',
+			  `prefixFilename` VARCHAR(255) NOT NULL COMMENT 'Document prefix',
 			  `typeId` INT(11) NOT NULL COMMENT 'Type',
 			  `staffOnly` TINYINT NULL DEFAULT NULL COMMENT 'Confidential to staff only?',
 			  `managers` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Managers (usernames, one per line)',
-			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
+			  `ordering` ENUM('1','2','3','4','5','6','7','8','9') NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)',
 			  `spaceAfter` TINYINT NULL COMMENT 'Add space after?',
-			  `introductionHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'Introduction text',
-			  `membersHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Members',
+			  `introductionHtml` TEXT NULL DEFAULT NULL COMMENT 'Introduction text',
+			  `membersHtml` TEXT NULL COMMENT 'Members',
 			  `termsOfReferenceHtml` TEXT NULL COMMENT 'Terms of reference',
-			  `meetingsHtml` TEXT CHARACTER SET utf8 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Meetings section clarification text (usually blank)',
+			  `meetingsHtml` TEXT NULL COMMENT 'Meetings section clarification text (usually blank)',
 			  `minutesAreNotes` TINYINT NULL COMMENT 'Minutes are \'notes\' (rather than actual minutes)?',
 			  `minutesDocuments` VARCHAR(255) NULL COMMENT 'Treat as minutes documents',
 			  UNIQUE(`moniker`)
@@ -140,7 +140,7 @@ class committeeListings extends frontControllerApplication
 			
 			CREATE TABLE `meetings` (
 			  `id` int(11) NOT NULL PRIMARY KEY COMMENT 'Automatic key',
-			  `committeeId` int(11) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Committee',
+			  `committeeId` int(11) NOT NULL COMMENT 'Committee',
 			  `date` date NOT NULL COMMENT 'Date',
 			  `time` time COMMENT 'Time',
 			  `location` VARCHAR(255) COMMENT 'Location',
@@ -153,14 +153,14 @@ class committeeListings extends frontControllerApplication
 			
 			CREATE TABLE `types` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
-			  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Type',
+			  `type` varchar(255) NOT NULL COMMENT 'Type',
 			  `ordering` int(1) NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)'
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Committee type groups';
 			
 			CREATE TABLE `settings` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key (ignored)',
-			  `homepageIntroductionHtml` text COLLATE utf8mb4_unicode_ci COMMENT 'Homepage introductory content',
-			  `homepageFooterHtml` text COLLATE utf8mb4_unicode_ci COMMENT 'Homepage footer content',
+			  `homepageIntroductionHtml` text COMMENT 'Homepage introductory content',
+			  `homepageFooterHtml` text COMMENT 'Homepage footer content',
 			  `membershipIntroductionHtml` TEXT NULL COMMENT 'Membership page introduction'
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Settings';
 		";
