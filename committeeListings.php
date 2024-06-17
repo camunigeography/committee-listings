@@ -117,7 +117,7 @@ class committeeListings extends frontControllerApplication
 			CREATE TABLE `administrators` (
 			  `username` varchar(255) NOT NULL PRIMARY KEY COMMENT 'Username',
 			  `active` enum('','Yes','No') NOT NULL DEFAULT 'Yes' COMMENT 'Currently active?'
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='System administrators';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='System administrators';
 			
 			CREATE TABLE `committees` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
@@ -136,7 +136,7 @@ class committeeListings extends frontControllerApplication
 			  `minutesAreNotes` TINYINT NULL COMMENT 'Minutes are \'notes\' (rather than actual minutes)?',
 			  `minutesDocuments` VARCHAR(255) NULL COMMENT 'Treat as minutes documents',
 			  UNIQUE(`moniker`)
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Committees';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Committees';
 			
 			CREATE TABLE `meetings` (
 			  `id` int(11) NOT NULL PRIMARY KEY COMMENT 'Automatic key',
@@ -149,20 +149,20 @@ class committeeListings extends frontControllerApplication
 			  `rescheduledFrom` DATE NULL COMMENT 'Rescheduled from date',
 			  `isCancelled` TINYINT NULL COMMENT 'Meeting cancelled?',
 			  UNIQUE KEY `committeeId_date`(`committeeId`, `date`)
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Meetings';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Meetings';
 			
 			CREATE TABLE `types` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key',
 			  `type` varchar(255) NOT NULL COMMENT 'Type',
 			  `ordering` int(1) NOT NULL DEFAULT '5' COMMENT 'Ordering (1 = first)'
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Committee type groups';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Committee type groups';
 			
 			CREATE TABLE `settings` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key (ignored)',
 			  `homepageIntroductionHtml` text COMMENT 'Homepage introductory content',
 			  `homepageFooterHtml` text COMMENT 'Homepage footer content',
 			  `membershipIntroductionHtml` TEXT NULL COMMENT 'Membership page introduction'
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8mb4_unicode_ci COMMENT='Settings';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Settings';
 		";
 	}
 	
