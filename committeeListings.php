@@ -542,9 +542,8 @@ class committeeListings extends frontControllerApplication
 		
 		# Add the javascript
 		$html .= "\n<script>
-			var torLink = document.getElementById ('showtor');
-			torLink.addEventListener ('click', function (e) {
-			document.getElementById ('termsofreference').style.display = 'block';
+			document.getElementById ('showtor').addEventListener ('click', function (e) {
+				document.getElementById ('termsofreference').style.display = 'block';
 				document.getElementById ('showtor').style.display = 'none';
 				e.preventDefault ();
 			});
