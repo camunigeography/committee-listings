@@ -161,7 +161,8 @@ class committeeListings extends frontControllerApplication
 			  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'Automatic key (ignored)',
 			  `homepageIntroductionHtml` text COMMENT 'Homepage introductory content',
 			  `homepageFooterHtml` text COMMENT 'Homepage footer content',
-			  `membershipIntroductionHtml` TEXT NULL COMMENT 'Membership page introduction'
+			  `membershipIntroductionHtml` TEXT NULL COMMENT 'Membership page introduction',
+			  `timetableCalendarUrl` VARCHAR(255) NULL COMMENT 'URL of timetable calendar feed page'
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Settings';
 		";
 	}
@@ -366,7 +367,15 @@ class committeeListings extends frontControllerApplication
 	public function schedule ()
 	{
 		# Start the HTML
-		$html = "\n<p>This listing gives the schedule of forthcoming meetings.</p>";
+		$html = '';
+		
+		# Add iCal feed button, if enabled in settings; note that this is data from an external timetable source, not generated from this list
+		if ($this->settings['timetableCalendarUrl']) {
+			$html .= "\n" . '<p><a href="' . htmlspecialchars ($this->settings['timetableCalendarUrl']) . '">' . '<img src="/images/icons/extras/ical.gif" alt="iCal" title="Timetable system iCal output - subscribe for your calendar" class="right" /></a></p>';
+		}
+		
+		# Introduction
+		$html .= "\n<p>This listing gives the schedule of forthcoming meetings.</p>";
 		
 		# Get forthcoming meetings
 		if (!$meetings = $this->getForthcomingMeetings ()) {
