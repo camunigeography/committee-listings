@@ -135,6 +135,7 @@ class committeeListings extends frontControllerApplication
 			  `meetingsHtml` TEXT NULL COMMENT 'Meetings section clarification text (usually blank)',
 			  `minutesAreNotes` TINYINT NULL COMMENT 'Minutes are \'notes\' (rather than actual minutes)?',
 			  `minutesDocuments` VARCHAR(255) NULL COMMENT 'Treat as minutes documents',
+			  `timetableCalendarUrl` VARCHAR(255) NULL COMMENT 'URL of timetable calendar feed page',
 			  UNIQUE(`moniker`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Committees';
 			
@@ -481,6 +482,9 @@ class committeeListings extends frontControllerApplication
 		$html .= "\n<h2>Members of the Committee</h2>";
 		$html .= $this->committee['membersHtml'];
 		$html .= $this->termsOfReference ($this->committee['termsOfReferenceHtml']);
+		if ($this->committee['timetableCalendarUrl']) {
+			$html .= "\n" . '<p><a href="' . htmlspecialchars ($this->committee['timetableCalendarUrl']) . '">' . '<img src="/images/icons/extras/ical.gif" alt="iCal" title="Timetable system iCal output - subscribe for your calendar" class="right" /></a></p>';
+		}
 		$html .= "\n<h2>Meetings</h2>";
 		$html .= $this->committee['meetingsHtml'];
 		if ($this->committee['editRights']) {
@@ -875,6 +879,7 @@ class committeeListings extends frontControllerApplication
 			'ordering' => array ('heading' => array (3 => 'Ordering in committee list'), ),
 			'minutesAreNotes' => array ('heading' => array (3 => 'Miscellaneous settings'), ),
 			'introductionHtml' => array ('heading' => array (3 => '<a name="about"></a>About texts'), ),
+			'timetableCalendarUrl' => array ('heading' => array (3 => 'Calendaring'), ),
 		);
 		
 		# Return the attributes
