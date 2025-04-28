@@ -18,12 +18,12 @@ class committeeListings extends frontControllerApplication
 			'administrators' => true,
 			'tabUlClass' => 'tabsflat',
 			'useEditing' => true,
+			'userIsStaffCallback' => NULL,
 			'supportedFileTypes' => array ('pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'm4a', 'mp4'),
 			'uploadTypesText' => 'Agendas/minutes should ideally be in PDF format, but Word documents are also acceptable. (You can also upload other files like Powerpoint, Excel, MP4 video.)',
 			'paperUploadSlots' => 10,
 			'usersAutocomplete' => false,
 			'itemCaseSensitive' => true,
-			'getStaffFunction' => false,
 		);
 		
 		# Return the defaults
@@ -172,6 +172,14 @@ class committeeListings extends frontControllerApplication
 	# Additional initialisation, pre-actions
 	public function mainPreActions ()
 	{
+		# Determine if the user is staff
+		$userIsStaffCallback = $this->settings['userIsStaffCallback'];
+		if (!is_callable ($userIsStaffCallback)) {
+			$errorHtml = "\n<p class=\"warning\"><strong>Error:</strong> This web application is not correctly set up. The Webmaster needs to correct this problem.</p>";
+			return false;
+		}
+		$this->userIsStaff = ($this->user && $userIsStaffCallback ($this->user));
+		
 		# Get the Committees
 		if (!$this->committees = $this->getCommittees ($errorHtml)) {
 			$html = $errorHtml;
@@ -280,22 +288,6 @@ class committeeListings extends frontControllerApplication
 			$managersList = (trim ($committee['managers']) ? explode (',', $committee['managers']) : array ());
 			$data[$moniker]['editRights'] = ($this->user && ($this->userIsAdministrator || in_array ($this->user, $managersList)));
 		}
-		
-		# If any committee is staff-only, ensure a data function is defined and callable, and obtain the staff data
-		$staff = array ();
-		foreach ($data as $moniker => $committee) {
-			if ($committee['staffOnly']) {
-				if (!$this->settings['getStaffFunction'] || !is_callable ($this->settings['getStaffFunction'])) {
-					$errorHtml = "\n<p class=\"warning\"><strong>Error:</strong> This web application is not correctly set up. A section is marked staff-only but no staff data source has been defined. The Webmaster needs to correct this problem.</p>";
-					return false;
-				}
-				$staff = $this->settings['getStaffFunction'] ();
-				break;
-			}
-		}
-		
-		# Determine whether the user is staff; if no staff function is defined, there will be no staff, so this will safely return false
-		$this->userIsStaff = ($this->user && isSet ($staff[$this->user]));
 		
 		# Add whether the user has viewing rights; in staff-only areas, a user must be logged in (which is also checked later in mainPreActions) and be in the staff list
 		foreach ($data as $moniker => $committee) {
